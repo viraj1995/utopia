@@ -13,20 +13,18 @@ To start using it, say a simple invocation phrase, such as the following listed 
 
 | Starting Phrase                          | Example                              |
 |------------------------------------------|--------------------------------------|
-| <invocation name>                        | Alexa, Utopia                        |
-| Ask <invocation name>                    | Alexa, Ask Utopia                    |
-| Begin <invocation name>                  | Alexa, Begin Utopia                  |
-| Launch <invocation name>                 | Alexa, Launch Car Fu                 |
-| Load <invocation name>                   | Alexa, Load Utopia                   |
-| Open <invocation name>                   | Alexa, Open Utopia                   |
-| Play <invocation name>                   | Alexa, Play Utopia                   |
-| Play the game <invocation name>          | Alexa, Play the game Utopia          |
-| Resume <invocation name>                 | Alexa, Resume Utopia                 |
-| Run <invocation name>                    | Alexa, Run Utopia                    |
-| Start <invocation name>                  | Alexa, Start Utopia                  |
-| Start playing the game <invocation name> | Alexa, Start playing the game Utopia |
-| Tell <invocation name>                   | Alexa, Tell Utopia                   |
-| Use <invocation name>                    | Alexa, Use Utopia                    |
+| \<invocation name>                        | Alexa, Utopia                        |
+| Ask \<invocation name>                    | Alexa, Ask Utopia                    |
+| Begin \<invocation name>                  | Alexa, Begin Utopia                  |
+| Launch \<invocation name>                 | Alexa, Launch Utopia                |
+| Load \<invocation name>                   | Alexa, Load Utopia                   |
+| Open \<invocation name>                   | Alexa, Open Utopia                   |
+| Play \<invocation name>                   | Alexa, Play Utopia                   |
+| Resume \<invocation name>                 | Alexa, Resume Utopia                 |
+| Run \<invocation name>                    | Alexa, Run Utopia                    |
+| Start \<invocation name>                  | Alexa, Start Utopia                  |
+| Tell \<invocation name>                   | Alexa, Tell Utopia                   |
+| Use \<invocation name>                    | Alexa, Use Utopia                    |
 
 ## To Be Continued...
 I will add more to this as I get farther into the project.
