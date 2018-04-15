@@ -1,0 +1,85 @@
+
+initial_welcome: |
+  Welcome to Utopia! I'm Alexa, and I will be helping you out today.
+  For the full list of features and commands, please say help. Other than that, what's your name?
+
+initial_welcome_reprompt: Sorry, I did not quite get that, what's your name?
+
+official_welcome: |
+  Hi, {{firstname}}! Would you like to take the Hamilton Depression Rating survey,
+  or do you just need someone to talk to?
+
+official_welcome_reprompt: |
+  Hello again, I did not catch that. Please say survey or someone to talk to.
+  For more commands, please say help.
+
+start_survey: |
+  Hi, {{firstname}}. Welcome to the Hamilton Depression Rating Survey.
+  I am Alexa, and I will asking you questions.
+  Try your best to answer each question honestly and completely to your best knowledge.
+  This survey will help me better understand what you are going through.
+  Are you ready to start the survey?
+
+
+help: |
+  For an evaluation, say survey. For cognitive behavioral therapy information, treatment and practices, say C.B.T.
+  For nearby therapist recommendations, say therapist. If you need someone to talk to, say talk.
+  For motivational quotes, say quote. For updates on sports, say a specific type of sport or just sports.
+  For updates on current news, say news. For mindfulness meditation, say meditation.
+
+BonusOneWait: |
+  <speak>
+  Okay. I will repeat this question and give you time to think.
+  Think about the first three words that come to your mind.
+  <break time="7s"/>
+  Are you ready to move on?
+
+  </speak>
+
+BonusTwoWait: |
+  <speak>
+  Okay. I will repeat this question and give you time to think.
+  Think about three adjectives that describe your past week. Again, you have time to think about it, before answering.
+  <break time="7s"/>a
+  Are you ready to move on?
+  </speak>
+
+BonusThreeWait: |
+  <speak>
+  Okay. I will repeat this question and give you time to think.
+  Think about three adjectives you would use to describe yourself.
+  <break time="7s"/>
+  Are you ready to move on?
+
+  </speak>
+
+normal: |
+  Your score for the Hamilton Depression Survey is {{score}}. Based on this score, you fall in the category
+  of Normal. You may be experiencing temporary depression due to a recent event. Keep your head up! My recommendation is to
+  listen to some motivational quotes. Say motivation to listen to some inspirational quotes.
+
+mild: |
+  Your score for the Hamilton Depression Survey is {{score}}. Based on this score, you fall in the category
+  of Mild depression. My recommendation is to practice meditating, which
+  may help you take your mind off of this temporary depression.
+  Please say meditation for an exercise for mindfulness meditation.
+
+moderate: |
+  Your score for the Hamilton Depression Survey is {{score}}. Based on this score, you fall in the category
+  of Moderate depression.
+
+severe: |
+  Your score for the Hamilton Depression Survey is {{score}}. Based on this score, you fall in the category
+  of Severe depression.
+
+very_severe: |
+  Your score for the Hamilton Depression Survey is {{score}}. Based on this score, you fall in the category of
+  very severe depression. My recommendation is you talk to someone, such as a therapist or the National Suicide Hotline.
+  Do you want to talk to a therapist, or the suicide hotline? Say therapist or suicide hotline.
+
+reprompt_survey: |
+  I'm sorry, but I did not quite understand the answer you gave. Please say a number in the specified range.
+
+bye: Farewell!
+
+#Just remember, even if it doesn't seem that way right now, this feeling won't last forever.
