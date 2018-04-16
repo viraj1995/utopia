@@ -26,6 +26,11 @@ To start using it, say a simple invocation phrase, such as the following listed 
 | Tell \<invocation name>                   | Alexa, Tell Utopia                   |
 | Use \<invocation name>                    | Alexa, Use Utopia                    |
 
+
+To just start and see the available features, say:
+
+**Alexa, start Utopia and help**
+
 ## To Be Continued...
 I will add more to this as I get farther into the project.
 
