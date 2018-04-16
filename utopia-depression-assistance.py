@@ -1,10 +1,9 @@
 import os
-from flask import Flask, json, render_template
+from flask import Flask, json, render_template, jsonify
 from flask_ask import Ask, request, session, question, statement, delegate, convert_errors, elicit_slot
 import requests
 import json
 import logging
-from pythonjsonlogger import jsonlogger
 from num2words import num2words
 from pprint import pprint, pformat
 from datetime import datetime
@@ -12,7 +11,15 @@ import urllib
 import re
 import boto3
 from textblob import TextBlob
+import praw
+import yaml
+from random import randint
+from bs4 import BeautifulSoup, Tag, NavigableString
 
+
+##############################
+# Environment Initialization
+##############################
 
 SESSION_FIRSTNAME = "firstname"
 SESSION_SCORE = "SESSION_SCORE"
@@ -23,17 +30,18 @@ COUNT = 0
 BONUS_CONFIRMED = "bonus"
 #LIST_OF_QUESTIONS = {num2words(x).title():None for x in range(1, 4)}
 #LIST_OF_QUESTIONS = [num2words(x).title() for x in range(1, 4)]
+ASK_PRETTY_DEBUG_LOGS = True
+
 
 app = Flask(__name__)
 ask = Ask(app, "/")
-formatter = jsonlogger.JsonFormatter(json_indent=4)
-logHandler = logging.StreamHandler()
-logger = logging.getLogger('flask_ask')
-logger.setLevel(logging.DEBUG)
-logHandler.setFormatter(formatter)
-logger.addHandler(logHandler)
+logger = logging.getLogger('flask_ask').setLevel(logging.DEBUG)
 
 
+
+##############################
+# On Launch
+##############################
 # When app is first launched, user will wind up here with this @ask.launch decorator
 @ask.launch
 def start_skill():
@@ -41,13 +49,18 @@ def start_skill():
     welcome_reprompt = render_template('initial_welcome_reprompt')
     return question(welcome_message).reprompt(welcome_reprompt)
 
-
+##########################
+# Custom Intents
+##########################
 @ask.intent("NameIntent",
-            mapping= {'firstname':'FirstName'})
+            mapping= {'firstname': 'FirstName'})
 def get_name(firstname):
-    name_message = render_template("official_welcome" , firstname=firstname)
+    name_message = render_template("official_welcome", firstname=firstname)
     name_message_reprompt = render_template("official_welcome_reprompt")
     session.attributes[SESSION_FIRSTNAME] = firstname
+    session.attributes_encoder = json.JSONEncoder
+    with open('session.json', 'w') as outfile:
+        json.dump(session.attributes, outfile, indent=4, sort_keys=True)
     return question(name_message).reprompt(name_message_reprompt)
 
 
@@ -55,36 +68,42 @@ def get_name(firstname):
 def start_survey():
 
     dialog_state = get_dialog_state()
+    session.attributes_encoder = json.JSONEncoder
 
+    ## ADD IN PROGRESS DIALOG STATE
     if dialog_state == "STARTED":
         session.attributes["COUNT"] = 0
         session.attributes["BONUS_COUNT"] = 0
         session.attributes["SCORE"] = 0
         # session.attributes["QUESTION"] = 'BonusOne'
         session.attributes["QUESTION"] = 'One'
+        session.attributes["PREV_QUESTION"] = 'BonusOne'
         return delegate()
     elif dialog_state != "COMPLETED":
-
         # If do not want to continue survey:
         if request["intent"]["slots"]["StartSurvey"]["value"] == 'no':
             return stop()
 
         survey_question = session.attributes["QUESTION"]
-
+        previous_question = session.attributes["PREV_QUESTION"]
         ## If regular survey questions
         if not re.match("Bonus", survey_question):
             if 'value' in request["intent"]["slots"][survey_question]:
+
+                # Record answer for question
+                session.attributes[survey_question] = int(request["intent"]["slots"][survey_question]["value"])
+                # Add each score to get total survey score
                 session.attributes["SCORE"] += int(request["intent"]["slots"][survey_question]["value"])
 
                 if request["intent"]["slots"][survey_question]["value"] not in ('0', '1', '2', '3', '4'):
                     reprompt_answer = render_template("reprompt_survey")
                     return elicit_slot(survey_question, reprompt_answer)
+        # If Bonus Questions
         else:
-
-
             survey_wait = survey_question + "Wait"
             bonus_wait = request["intent"]["slots"][survey_wait]
 
+            # If bonus wait question
             if 'value' in bonus_wait:
                 if request["intent"]["slots"][survey_wait]["value"] == 'no':
                     if session.attributes["BONUS_COUNT"] > 0:
@@ -92,30 +111,63 @@ def start_survey():
                     bonus_question = render_template(survey_wait)
                     return elicit_slot(survey_wait, bonus_question)
 
-            if 'value' in request["intent"]["slots"][survey_question]:
-                words = request["intent"]["slots"][survey_question]["value"]
-                analysis = TextBlob(words)
+            if previous_question in request["intent"]["slots"]:
+                # If actual bonus question
+                bonus_question = request["intent"]["slots"][previous_question]
+                if 'value' in bonus_question:
+                    words = request["intent"]["slots"][previous_question]["value"]
+                    # analysis = TextBlob(words)
+                    session.attributes[previous_question] = words
 
-                ## Increase score based on negative sentiment analysis of words in bonus section
-                if analysis.sentiment.polarity < 0:
-                    session.attributes["SCORE"] += (2 / 3) * (-analysis.sentiment.polarity)
-                #word_list.append(words)
+                    # Increase score based on negative sentiment analysis of words in bonus section
+                    # if analysis.sentiment.polarity < 0:
+                    #     session.attributes["SCORE"] += (2 / 3) * (-analysis.sentiment.polarity)
 
+        # Increment question count for both regular and bonus questions
         if session.attributes["COUNT"] < 16:
 
             session.attributes["COUNT"] += 1
             survey_question = num2words(session.attributes["COUNT"]).capitalize()
         elif session.attributes["BONUS_COUNT"] < 3:
+            previous_question = "Bonus" + num2words(session.attributes["BONUS_COUNT"]).capitalize()
             session.attributes["BONUS_COUNT"] += 1
             survey_question = "Bonus" + num2words(session.attributes["BONUS_COUNT"]).capitalize()
 
-
         #session.attributes["SCORE"] += int(request["intent"]["slots"][session.attributes["QUESTION"]]["value"])
         session.attributes["QUESTION"] = survey_question
+        session.attributes["PREV_QUESTION"] = previous_question
 
         return delegate()
 
+    # Get last bonus question answer
+    last_question = session.attributes["QUESTION"]
+    session.attributes[last_question] = \
+        request["intent"]["slots"][last_question]["value"]
+
+    # Bonus section calculation of score using sentiment analysis
+    bonus_list = ['BonusOne', 'BonusTwo', 'BonusThree']
+    for bonus in bonus_list:
+        words = session.attributes[bonus]
+        word_list = words.split()
+        bonus_score = 0
+        for word in word_list:
+            analysis = TextBlob(word)
+            bonus_score += analysis.sentiment.polarity
+
+        # Normalize scores based on three adjectives
+        bonus_score = bonus_score / 3
+
+        # Increase score based on negative sentiment analysis of words in bonus section
+        if bonus_score < 0:
+            session.attributes["SCORE"] += (2 / 3) * (-bonus_score)
+
     score = round(float(session.attributes["SCORE"]), 2)
+
+    session.attributes[SESSION_SCORE] = score
+
+    # Dumping session data for debug
+    with open('session.json', 'w') as outfile:
+        json.dump(session.attributes, outfile, indent=4, sort_keys=True)
 
     if score >= 0 and score <= 7:
         # Normal
@@ -142,14 +194,7 @@ def start_survey():
 
     # dynamodb = boto3.resource('dynamodb')
     # table = dynamodb.Table('databaseTableName')
-
-    #session.attributes[WORDS] = word_list
-    #session.attributes[SESSION_SCORE] = score
     return question(score_message)
-
-    #firstname =  session.attributes[SESSION_FIRSTNAME]
-    #end_msg = "Hello %s ." % firstname
-    #eturn statement(end_msg + "This is the survey intent.")
 
 
 @ask.intent("TalkToIntent")
@@ -161,17 +206,42 @@ def talk_to_someone():
     return statement(end_msg + "This is the talk to intent.")
 
 
+@ask.intent("GetQuoteTypeIntent")
+def get_quote_type():
+    dialog_state = get_dialog_state()
+    session.attributes_encoder = json.JSONEncoder
+    if dialog_state == 'STARTED':
+        session.attributes['Category'] = 'positive'
+        return delegate()
+    elif dialog_state == 'IN_PROGRESS':
+        session.attributes['Category'] = request['intent']['slots']['Category']['value']
+        return delegate()
+    elif dialog_state == 'COMPLETED':
+        session.attributes['Category'] = request['intent']['slots']['Category']['value']
+        return give_quote(category=session.attributes['Category'])
 
-#@ask.intent('BonusConfirmation')
-#def confirm(survey_question):
-#    return start_survey()
+
+@ask.intent("QuoteIntent")
+def give_quote(category='positive'):
+
+    try:
+        if category != request['intent']['slots']['Category']['value']:
+            category = request['intent']['slots']['Category']['value']
+            session.attributes['Category'] = category
+    except KeyError:
+        category = session.attributes['Category']
+
+    num_quotes = get_brainy_quotes(category)
+    quote_index = randint(1, num_quotes)
+
+    quote = session.attributes['Quote{}'.format(num2words(quote_index).capitalize())]
+    quote_msg = render_template('quote', category=category, quote=quote)
+    return question(quote_msg)
 
 
-#@ask.intent('AMAZON.RepeatIntent')
-#def repeat(question):
-    ## Do some processing to figure out what question needs to be repeated
-#    prompt = "I did not quite get that. Can you please repeat your answer?"
-#    return elicit_slot(question, prompt)
+##############################
+# Overriding Required Intents
+##############################
 
 
 @ask.intent('AMAZON.HelpIntent')
@@ -182,8 +252,11 @@ def help():
 
 @ask.intent('AMAZON.StopIntent')
 def stop():
-    #firstname = session.attributes[SESSION_FIRSTNAME]
-    bye_message = render_template("bye")
+    try:
+        firstname = session.attributes[SESSION_FIRSTNAME]
+    except KeyError:
+        firstname = 'my friend'
+    bye_message = render_template("bye", firstname=firstname)
     return statement(bye_message)
 
 
@@ -191,20 +264,61 @@ def stop():
 def session_ended():
     return "{}", 200
 
-def elicit():
-    pass
 
-# def create_question_list():
-#     LIST_OF_QUESTIONS = (num2words(x).title() for x in range(1, 4))
-#     return LIST_OF_QUESTIONS
+##############################
+# Helper Functions
+##############################
+def get_reddit_quotes():
+    r = praw.Reddit(client_id=os.environ["REDDIT_CLIENT_ID"],
+                    client_secret=os.environ["REDDIT_CLIENT_SECRETS"],
+                    user_agent='alexa:alexaappv0.0.1 (by /u/kchuang)')
+    page = r.subreddit('GetMotivated')
+    top_posts = page.hot(limit=100)
+
+    # List form
+    # Parse only titles with [Text] in it
+    text_only_titles = [post.title.replace('[Text]', '').replace('-', 'By ')
+                        for post in top_posts if '[Text]' in post.title]
+    for i, post in enumerate(text_only_titles):
+        session.attributes['Quote{}'.format(num2words(i+1).capitalize())] = post
+
+    return len(text_only_titles)
+
+
+def get_brainy_quotes(category, number_of_quotes=10):
+    popular_choice = ['motivational', 'inspirational',
+                      'life', 'smile', 'family', 'positive',
+                      'friendship', 'success', 'happiness', 'love']
+
+    url = "http://www.brainyquote.com/quotes/topics/topic_" + category + ".html"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    quotes = []
+    for i, quote in enumerate(soup.find_all('a', {'title': 'view quote'})):
+        if isinstance(quote.contents[0], NavigableString):
+            session.attributes['Quote{}'.format(num2words(i + 1).capitalize())] = \
+                str(quote.contents[0]).replace('-', 'By')
+            # quotes.append(str(quote.contents[0].encode('utf-8')))
+            quotes.append(str(quote.contents[0]).replace('-', 'By'))
+        elif isinstance(quote.contents[0], Tag):
+            session.attributes['Quote{}'.format(num2words(i + 1).capitalize())] = \
+                quote.contents[0].attrs['alt'].replace('-', 'By')
+            quotes.append(quote.contents[0].attrs['alt'].replace('-', 'By'))
+
+    result = quotes[:number_of_quotes]
+    return len(result)
+
 
 def get_dialog_state():
     return session['dialogState']
 
 
+##############################
+# Program Entry
+##############################
+
 if __name__ == '__main__':
-    if 'ASK_VERIFY_REQUESTS' in os.environ:
-        verify = str(os.environ.get('ASK_VERIFY_REQUESTS', '')).lower()
-        if verify == 'false':
-            app.config['ASK_VERIFY_REQUESTS'] = False
+
+    app.config['ASK_PRETTY_DEBUG_LOGS'] = True
+
     app.run(debug=True)

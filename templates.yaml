@@ -24,8 +24,17 @@ start_survey: |
 help: |
   For an evaluation, say survey. For cognitive behavioral therapy information, treatment and practices, say C.B.T.
   For nearby therapist recommendations, say therapist. If you need someone to talk to, say talk.
-  For motivational quotes, say quote. For updates on sports, say a specific type of sport or just sports.
+  For motivational quotes, say motivation. For updates on sports, say a specific type of sport or just sports.
   For updates on current news, say news. For mindfulness meditation, say meditation.
+
+quote: |
+  <speak>
+  Here is a {{category}} quote. <break time="0.8s"/>
+  <prosody volume="+3dB"><prosody pitch="-10%"><prosody rate="85%">
+  {{quote}}
+  <break time="1.5s"/> </prosody></prosody></prosody>
+  If you want more quotes, say more. If you want to see the other features, say help. Otherwise, say stop to stop.
+  </speak>
 
 BonusOneWait: |
   <speak>
@@ -56,7 +65,7 @@ BonusThreeWait: |
 normal: |
   Your score for the Hamilton Depression Survey is {{score}}. Based on this score, you fall in the category
   of Normal. You may be experiencing temporary depression due to a recent event. Keep your head up! My recommendation is to
-  listen to some motivational quotes. Say motivation to listen to some inspirational quotes.
+  listen to some uplifting quotes. Say quotes to listen to some inspirational quotes or help for other available features.
 
 mild: |
   Your score for the Hamilton Depression Survey is {{score}}. Based on this score, you fall in the category
@@ -80,6 +89,6 @@ very_severe: |
 reprompt_survey: |
   I'm sorry, but I did not quite understand the answer you gave. Please say a number in the specified range.
 
-bye: Farewell!
+bye: Farewell {{firstname}}!
 
-#Just remember, even if it doesn't seem that way right now, this feeling won't last forever.
+# Just remember, even if it doesn't seem that way right now, this feeling won't last forever.
