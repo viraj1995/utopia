@@ -1,0 +1,10 @@
+textblob==0.15.1
+requests==2.18.4
+Flask==0.12.2
+Flask_Ask==0.9.8
+boto3==1.7.4
+beautifulsoup4==4.6.0
+lex_bot_tester==1.0.6
+num2words==0.5.6
+praw==5.4.0
+PyYAML==3.12
