@@ -1,3 +1,13 @@
+'''
+Utopia is an Alexa skill programmed in Python to help with depression.
+
+Disclaimer: This skill is not meant to be a cure for depression, but more of an aid for depression.
+
+Author: Kevin Chuang
+Date: March 8, 2018
+
+'''
+
 import os
 from flask import Flask, json, render_template, jsonify
 from flask_ask import Ask, request, session, question, statement, delegate, convert_errors, elicit_slot
@@ -17,9 +27,9 @@ from random import randint
 from bs4 import BeautifulSoup, Tag, NavigableString
 
 
-##############################
-# Environment Initialization
-##############################
+##################################
+# App & Environment Initialization
+##################################
 
 SESSION_FIRSTNAME = "firstname"
 SESSION_SCORE = "SESSION_SCORE"
@@ -28,15 +38,10 @@ QUESTION = 'QUESTION'
 NUM_OF_QUESTIONS = 17
 COUNT = 0
 BONUS_CONFIRMED = "bonus"
-#LIST_OF_QUESTIONS = {num2words(x).title():None for x in range(1, 4)}
-#LIST_OF_QUESTIONS = [num2words(x).title() for x in range(1, 4)]
-ASK_PRETTY_DEBUG_LOGS = True
-
 
 app = Flask(__name__)
 ask = Ask(app, "/")
 logger = logging.getLogger('flask_ask').setLevel(logging.DEBUG)
-
 
 
 ##############################
@@ -48,6 +53,7 @@ def start_skill():
     welcome_message = render_template('initial_welcome')
     welcome_reprompt = render_template('initial_welcome_reprompt')
     return question(welcome_message).reprompt(welcome_reprompt)
+
 
 ##########################
 # Custom Intents
@@ -86,18 +92,18 @@ def start_survey():
 
         survey_question = session.attributes["QUESTION"]
         previous_question = session.attributes["PREV_QUESTION"]
-        ## If regular survey questions
+        # If regular survey questions
         if not re.match("Bonus", survey_question):
             if 'value' in request["intent"]["slots"][survey_question]:
+
+                if request["intent"]["slots"][survey_question]["value"] not in ('0', '1', '2', '3', '4'):
+                    reprompt_answer = render_template("reprompt_survey")
+                    return elicit_slot(survey_question, reprompt_answer)
 
                 # Record answer for question
                 session.attributes[survey_question] = int(request["intent"]["slots"][survey_question]["value"])
                 # Add each score to get total survey score
                 session.attributes["SCORE"] += int(request["intent"]["slots"][survey_question]["value"])
-
-                if request["intent"]["slots"][survey_question]["value"] not in ('0', '1', '2', '3', '4'):
-                    reprompt_answer = render_template("reprompt_survey")
-                    return elicit_slot(survey_question, reprompt_answer)
         # If Bonus Questions
         else:
             survey_wait = survey_question + "Wait"
@@ -116,12 +122,7 @@ def start_survey():
                 bonus_question = request["intent"]["slots"][previous_question]
                 if 'value' in bonus_question:
                     words = request["intent"]["slots"][previous_question]["value"]
-                    # analysis = TextBlob(words)
                     session.attributes[previous_question] = words
-
-                    # Increase score based on negative sentiment analysis of words in bonus section
-                    # if analysis.sentiment.polarity < 0:
-                    #     session.attributes["SCORE"] += (2 / 3) * (-analysis.sentiment.polarity)
 
         # Increment question count for both regular and bonus questions
         if session.attributes["COUNT"] < 16:
@@ -133,7 +134,6 @@ def start_survey():
             session.attributes["BONUS_COUNT"] += 1
             survey_question = "Bonus" + num2words(session.attributes["BONUS_COUNT"]).capitalize()
 
-        #session.attributes["SCORE"] += int(request["intent"]["slots"][session.attributes["QUESTION"]]["value"])
         session.attributes["QUESTION"] = survey_question
         session.attributes["PREV_QUESTION"] = previous_question
 
@@ -182,7 +182,7 @@ def start_survey():
         score_message = render_template('moderate', score=score)
 
     elif score > 18 and score <= 22:
-        # Severe Depression
+        # Severe Depression (Will categorize in the same category as very severe depression)
         score_message = render_template('severe', score=score)
 
     elif score > 22:
@@ -199,8 +199,6 @@ def start_survey():
 
 @ask.intent("TalkToIntent")
 def talk_to_someone():
-    #if firstname is None:
-    #    return get_name()
     firstname = session.attributes[SESSION_FIRSTNAME]
     end_msg = "Hello %s ." % firstname
     return statement(end_msg + "This is the talk to intent.")
@@ -243,7 +241,6 @@ def give_quote(category='positive'):
 # Overriding Required Intents
 ##############################
 
-
 @ask.intent('AMAZON.HelpIntent')
 def help():
     help_text = render_template('help')
@@ -268,23 +265,6 @@ def session_ended():
 ##############################
 # Helper Functions
 ##############################
-def get_reddit_quotes():
-    r = praw.Reddit(client_id=os.environ["REDDIT_CLIENT_ID"],
-                    client_secret=os.environ["REDDIT_CLIENT_SECRETS"],
-                    user_agent='alexa:alexaappv0.0.1 (by /u/kchuang)')
-    page = r.subreddit('GetMotivated')
-    top_posts = page.hot(limit=100)
-
-    # List form
-    # Parse only titles with [Text] in it
-    text_only_titles = [post.title.replace('[Text]', '').replace('-', 'By ')
-                        for post in top_posts if '[Text]' in post.title]
-    for i, post in enumerate(text_only_titles):
-        session.attributes['Quote{}'.format(num2words(i+1).capitalize())] = post
-
-    return len(text_only_titles)
-
-
 def get_brainy_quotes(category, number_of_quotes=10):
     popular_choice = ['motivational', 'inspirational',
                       'life', 'smile', 'family', 'positive',
@@ -298,7 +278,6 @@ def get_brainy_quotes(category, number_of_quotes=10):
         if isinstance(quote.contents[0], NavigableString):
             session.attributes['Quote{}'.format(num2words(i + 1).capitalize())] = \
                 str(quote.contents[0]).replace('-', 'By')
-            # quotes.append(str(quote.contents[0].encode('utf-8')))
             quotes.append(str(quote.contents[0]).replace('-', 'By'))
         elif isinstance(quote.contents[0], Tag):
             session.attributes['Quote{}'.format(num2words(i + 1).capitalize())] = \

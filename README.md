@@ -13,7 +13,7 @@ written in Latin that described a perfect world.
 The original title of the book is shown above, and translates to, "A truly golden little book, no less beneficial than entertaining, 
 of a republic's best state and of the new island Utopia"
 
-## What is it meant for?
+## What does Utopia do?
 
 This skill is meant to help with people who are clinically and periodically depressed mainly 
 but also people who are just having a bad day by talking to them, providing natural solutions, 
