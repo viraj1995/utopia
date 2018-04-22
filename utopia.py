@@ -1,3 +1,12 @@
+'''
+Utopia is an Alexa skill programmed in Python to help with depression.
+
+Disclaimer: This skill is not meant to be a cure for depression, but more of an aid for depression.
+
+Author: Kevin Chuang
+Date: March 8, 2018
+
+'''
 
 import os
 from flask import Flask, json, render_template, jsonify
