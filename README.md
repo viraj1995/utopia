@@ -2,6 +2,8 @@
 
 Utopia is the name of the Alexa skill that is designed to help people with depression.
 
+## Architecture
+![alt text](images/Utopia-alexa-skill-architecture.png)
 
 ## What is Utopia?
 
