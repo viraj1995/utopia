@@ -10,27 +10,28 @@ Utopia is the name of the Alexa skill that is designed to help people with depre
 ***Libellus vere aureus, nec minus salutaris quam festivus, de optimo rei publicae statu deque nova insula Utopia***
 
 The term was first coined by Thomas More (1478–1535), and was originally a fictional book
-written in Latin that described a perfect world. 
+that described a perfect world. 
 
-The original title of the book is shown above, and translates to, "A truly golden little book, no less beneficial than entertaining, 
-of a republic's best state and of the new island Utopia"
-
-## What does Utopia do?
-
-This skill is meant to help with people who are clinically and periodically depressed mainly 
-but also people who are just having a bad day by talking to them, providing natural solutions, 
-such as going out, exercising, talking to family or friends, motivating them, and possibly explaining to them 
-what they are going through. This Alexa skill will respond with basic human responses, 
-such as giving simple advice and suggestions. 
-
-This can have a great impact in decreasing suicide rates, 
-helping with clinically depressed people, and motivating them to get up and go on with their day. 
-Sometimes all a person needs is to talk to someone, and why not a virtual assistant who can talk back?
-
-**Disclaimer**: Utopia is not meant to be a cure, but a helper to depression. The people who programmed this are not experts in mental illnesses such as depression,
-and this is a product of our subjectivity and couple months of basic research (mostly via Google) on depression.
+Utopia is the idea of a perfect place that has been designed to have no problems.
 
 ## Description
+
+According to the [World Health Organization](http://www.who.int/mediacentre/factsheets/fs369/en/), 350 million people worldwide
+suffer from depression. Depression is the leading cause of disability.
+
+This skill is meant to help people who are going through depression. The main feature of this skill involves taking
+the [Hamilton Depression Rating Scale Survey](https://www.psychcongress.com/saundras-corner/scales-screeners/depression/hamilton-depression-rating-scale-ham-d) to get a general idea of the severity of depression, and based on the score
+of the survey, the skill would recommend certain natural remedies to help. The other complementary features include giving 
+positive and motivational quotes, proposing natural solutions (exercising, going out, talking to family & friends), 
+a mindfulness meditation exercise, recommendations for nearby therapists, and, if necessary, getting help 
+from the National Suicide Prevention Lifeline. 
+
+**Disclaimer**: Utopia is not meant to be a substitute for professional medical advice, treatment or diagnosis. 
+It is more of a supplemental and informational helper to mitigate depression. The people who programmed this are not experts in mental illnesses such as depression,
+and this is a product of our subjectivity and couple months of basic research on depression.
+
+
+## Technology
 
 Utopia is powered by Python, [Flask-Ask](http://flask-ask.readthedocs.io/en/latest/), and the Alexa Skills kit.
 
