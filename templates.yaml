@@ -7,7 +7,7 @@ initial_welcome_reprompt: Sorry, I did not quite get that, what's your name?
 
 official_welcome: |
   Hi, {{firstname}}! Would you like to take the Hamilton Depression Rating survey,
-  or do you just need someone to talk to?
+  or do you want a full list of the features? Say survey or help to continue.
 
 official_welcome_reprompt: |
   Hello again, I did not catch that. Please say survey or someone to talk to.
@@ -20,12 +20,54 @@ start_survey: |
   This survey will help me better understand what you are going through.
   Are you ready to start the survey?
 
+suicide: |
+  Thank you for being honest with me. Please don't hurt yourself or anyone else. Be strong, and remember that there are people that love and care about you.
+  I encourage you to reach out for help and call the National Suicide Prevention Hotline at 1-800-273-8255. They are available to talk to you 24 hours a day, 7 days a week.
+  For reference, I have placed their phone number on a card in your Alexa app.
+
+therapist: |
+  I've found a therapist near you. The name of the therapist is: {{name}}, and their number is: {{phone}}. {{name}} is currently {{availability}}.
+  I have added their contact information and available hours during the week to the Alexa app.
+
+advice_message: |
+  Here is a natural way to improve your mood. <break time="1s"/>
+
+advice_list:
+  - Listen to music that makes you feel good.
+  - Immerse yourself in nature, and take in the sounds and peacefulness. The change of scenery will help improve your mood.
+  - Go for a walk. Sometimes just getting out of the house and moving around can greatly help improve your mood.
+  - Sing! Belt it out till you're feeling better.
+  - Dance! Try dancing like no one's is watching.
+  - Clean and organize your home. It can help you refocus and give you a sense of control. It can also tune out the negative voice in your head, and at the end, you will feel accomplished, and can look around and feel pride.
+  - Take note of all the small things you've accomplished today.
+  - Draw and paint what you're feeling. Sometimes just expressing your emotions on a canvas can be very grounding.
+  - Write little positivity notes to yourself, and leave them where you'll see them.
+  - Play your favorite video game. If you develop a “gameful” mindset, you’ll be more motivated and resilient in the face of everyday challenges.
+  - Eat healthy. Although nothing is definitive, there's evidence that foods with omega-3 fatty acids, such as salmon and tuna, and folic acid, such as spinach and avocado, could help ease depression.
+  - Take your time solving a jigsaw puzzle. The sense of accomplishment and content with every little bit of piece you add can go a long way.
+  - Play with your pet, or get a pet if you don't have one. This could help reduce stress and anxiety by easing loneliness and encouraing exercise and playfulness.
+  - Immerse yourself in another world by reading a book. Being able to unplug and lose yourself in another world and another story can bring you so much peace of mind.
+  - Stay organized by sticking to a routine. Having your routines organized can give you a sense of control over your life.
+  - Make your bed in the morning. It might be a small accomplishment, but it sets the tone for the entire day. Extensive studies have shown that it can improve mood and productivity.
+  - Take a warm, comforting bubble bath. Being physically relaxed can have a positive impact on your mind.
+  - Exercise or do some yoga. It temporarily boosts feel-good chemicals called endorphins. It may also have long-term benefits for people with depression. Regular exercise seems to encourage the brain to rewire itself in positive ways.
+  - Help someone else by volunteering. Making someone else's day a little better can instantly improve your mood, and can go a long way for both parties.
+  - Call a friend and hang out. Just being around others can greatly improve your mood.
+  - Go to your favorite coffee shop and enjoy a nice cup of coffee.
+  - Practice Mindfulness Meditation. It can lower stress, and is great for your mental and physical health.
+  - Accompany someone to the movies, a concert, or a small get-together.
+  - Vist a museum. Hanging out around a museum for a couple hours can be an emotionally satisfying experience.
+  - Meet new people by taking a class or joining a club.
+  - Re-arrange the furniture in a room in your house. The change of scenery should help.
+  - Set goals, such as make a to-do list for this week. Setting goals is important to fight depression. Start small. Make your goal something that you can succeed at, like doing the dishes every other day. As you start to feel better, you can add more challenging daily goals.
+
+
 
 help: |
-  For an evaluation, say survey. For cognitive behavioral therapy information, treatment and practices, say C.B.T.
-  For nearby therapist recommendations, say therapist. If you need someone to talk to, say talk.
-  For motivational quotes, say motivation. For updates on sports, say a specific type of sport or just sports.
-  For updates on current news, say news. For mindfulness meditation, say meditation.
+  For an evaluation, say survey. To listen to a uplifting quote, say quotes. For a list of natural remedies for depression, please say remedy.
+  For cognitive behavioral therapy information, treatment and practices, say C.B.T. For mindfulness meditation, say meditation.
+  For nearby therapist recommendations, say therapist.
+
 
 quote: |
   <speak>
@@ -33,7 +75,7 @@ quote: |
   <prosody volume="+3dB"><prosody pitch="-10%"><prosody rate="85%">
   {{quote}}
   <break time="1.5s"/> </prosody></prosody></prosody>
-  If you want more quotes, say more. If you want to see the other features, say help. Otherwise, say stop to stop.
+  If you want more quotes, say more quotes. If you want to see the other features, say help. Otherwise, say stop to stop.
   </speak>
 
 BonusOneWait: |
@@ -69,26 +111,29 @@ normal: |
 
 mild: |
   Your score for the Hamilton Depression Survey is {{score}}. Based on this score, you fall in the category
-  of Mild depression. My recommendation is to practice meditating, which
-  may help you take your mind off of this temporary depression.
-  Please say meditation for an exercise for mindfulness meditation.
+  of Mild depression. My recommendation is to check out some natural remedies for depression. To listen to some, please say
+  remedy. If you want to check out the other features, say help. Otherwise say stop to stop.
+
 
 moderate: |
   Your score for the Hamilton Depression Survey is {{score}}. Based on this score, you fall in the category
-  of Moderate depression.
+  of Moderate depression. My recommendation is to practice meditating, which
+  may help relax you and take your mind off of negative thoughts.
+  Please say meditation for an exercise for mindfulness meditation.
 
 severe: |
   Your score for the Hamilton Depression Survey is {{score}}. Based on this score, you fall in the category
-  of Severe depression.
+  of Severe depression. My recommendation is to get help by contacting a therapist near you.
+  To find a therapist near you, say therapist, and I will look for an available therapist near you.
 
 very_severe: |
   Your score for the Hamilton Depression Survey is {{score}}. Based on this score, you fall in the category of
-  very severe depression. My recommendation is you talk to someone, such as a therapist or the National Suicide Hotline.
-  Do you want to talk to a therapist, or the suicide hotline? Say therapist or suicide hotline.
+  very severe depression. My recommendation for you is to get help by either talking to a therapist or the
+  National Suicide Prevention Lifeline. Do you want to talk to a therapist, or the suicide hotline?
+  Say therapist or suicide hotline for help.
 
 reprompt_survey: |
   I'm sorry, but I did not quite understand the answer you gave. Please say a number in the specified range.
 
-bye: Farewell {{firstname}}!
+bye: Farewell {{firstname}}! Just remember, some days you'll have setbacks, but just know that tomorrow is a new day with new possibilities.
 
-# Just remember, even if it doesn't seem that way right now, this feeling won't last forever.

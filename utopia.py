@@ -10,34 +10,23 @@ Date: March 8, 2018
 
 import os
 from flask import Flask, json, render_template, jsonify
-from flask_ask import Ask, request, session, question, statement, delegate, convert_errors, elicit_slot
+from flask_ask import Ask, request, session, question, context, statement, delegate, convert_errors, elicit_slot
 import requests
 import json
 import logging
 from num2words import num2words
-from pprint import pprint, pformat
-from datetime import datetime
-import urllib
+import geocoder
 import re
-import boto3
 from textblob import TextBlob
-import praw
 import yaml
+import random
 from random import randint
 from bs4 import BeautifulSoup, Tag, NavigableString
-
+from datetime import datetime
 
 ##################################
 # App & Environment Initialization
 ##################################
-
-SESSION_FIRSTNAME = "firstname"
-SESSION_SCORE = "SESSION_SCORE"
-WORDS = "SENTIMENT_WORD_LIST"
-QUESTION = 'QUESTION'
-NUM_OF_QUESTIONS = 17
-COUNT = 0
-BONUS_CONFIRMED = "bonus"
 
 app = Flask(__name__)
 ask = Ask(app, "/")
@@ -63,7 +52,7 @@ def start_skill():
 def get_name(firstname):
     name_message = render_template("official_welcome", firstname=firstname)
     name_message_reprompt = render_template("official_welcome_reprompt")
-    session.attributes[SESSION_FIRSTNAME] = firstname
+    session.attributes["firstname"] = firstname
     session.attributes_encoder = json.JSONEncoder
     with open('session.json', 'w') as outfile:
         json.dump(session.attributes, outfile, indent=4, sort_keys=True)
@@ -80,12 +69,12 @@ def start_survey():
     if dialog_state == "STARTED":
         session.attributes["COUNT"] = 0
         session.attributes["BONUS_COUNT"] = 0
-        session.attributes["SCORE"] = 0
-        # session.attributes["QUESTION"] = 'BonusOne'
+        session.attributes["HAMD_SCORE"] = 0
         session.attributes["QUESTION"] = 'One'
         session.attributes["PREV_QUESTION"] = 'BonusOne'
+        session.attributes["STATE"] = 'Survey'
         return delegate()
-    elif dialog_state != "COMPLETED":
+    elif dialog_state == "IN_PROGRESS":
         # If do not want to continue survey:
         if request["intent"]["slots"]["StartSurvey"]["value"] == 'no':
             return stop()
@@ -103,7 +92,7 @@ def start_survey():
                 # Record answer for question
                 session.attributes[survey_question] = int(request["intent"]["slots"][survey_question]["value"])
                 # Add each score to get total survey score
-                session.attributes["SCORE"] += int(request["intent"]["slots"][survey_question]["value"])
+                session.attributes["HAMD_SCORE"] += int(request["intent"]["slots"][survey_question]["value"])
         # If Bonus Questions
         else:
             survey_wait = survey_question + "Wait"
@@ -126,7 +115,6 @@ def start_survey():
 
         # Increment question count for both regular and bonus questions
         if session.attributes["COUNT"] < 16:
-
             session.attributes["COUNT"] += 1
             survey_question = num2words(session.attributes["COUNT"]).capitalize()
         elif session.attributes["BONUS_COUNT"] < 3:
@@ -138,11 +126,12 @@ def start_survey():
         session.attributes["PREV_QUESTION"] = previous_question
 
         return delegate()
-
-    # Get last bonus question answer
-    last_question = session.attributes["QUESTION"]
-    session.attributes[last_question] = \
-        request["intent"]["slots"][last_question]["value"]
+    elif dialog_state == "COMPLETED":
+        # Get last bonus question answer
+        last_question = session.attributes["QUESTION"]
+        session.attributes[last_question] = \
+            request["intent"]["slots"][last_question]["value"]
+        session.attributes['STATE'] = 'SurveyDone'
 
     # Bonus section calculation of score using sentiment analysis
     bonus_list = ['BonusOne', 'BonusTwo', 'BonusThree']
@@ -159,47 +148,47 @@ def start_survey():
 
         # Increase score based on negative sentiment analysis of words in bonus section
         if bonus_score < 0:
-            session.attributes["SCORE"] += (2 / 3) * (-bonus_score)
+            session.attributes["HAMD_SCORE"] += (2 / 3) * (-bonus_score)
 
-    score = round(float(session.attributes["SCORE"]), 2)
+    score = round(float(session.attributes["HAMD_SCORE"]), 2)
 
-    session.attributes[SESSION_SCORE] = score
+    session.attributes["HAMD_SCORE"] = score
 
     # Dumping session data for debug
-    with open('session.json', 'w') as outfile:
-        json.dump(session.attributes, outfile, indent=4, sort_keys=True)
+    # with open('session.json', 'w') as outfile:
+    #     json.dump(session.attributes, outfile, indent=4, sort_keys=True)
 
     if score >= 0 and score <= 7:
         # Normal
         score_message = render_template('normal', score=score)
-
+        session.attributes['Severity'] = 'Normal'
     elif score > 7 and score <= 13:
         # Mild Depression
         score_message = render_template('mild', score=score)
-
+        session.attributes['Severity'] = 'Mild'
     elif score > 13 and score <= 18:
         # Moderate Depression
         score_message = render_template('moderate', score=score)
-
+        session.attributes['Severity'] = 'Moderate'
     elif score > 18 and score <= 22:
         # Severe Depression (Will categorize in the same category as very severe depression)
         score_message = render_template('severe', score=score)
+        session.attributes['Severity'] = 'Severe'
 
     elif score > 22:
         # Very Severe Depression
         score_message = render_template('very_severe', score=score)
+        session.attributes['Severity'] = 'Very Severe'
 
     else:
-        score_message = 'I was unable to calculate your Hamilton survey score. Sorry.'
+        score_message = 'Sorry, I was unable to calculate your Hamilton survey score. Please try again later.'
 
-    # dynamodb = boto3.resource('dynamodb')
-    # table = dynamodb.Table('databaseTableName')
     return question(score_message)
 
 
 @ask.intent("TalkToIntent")
 def talk_to_someone():
-    firstname = session.attributes[SESSION_FIRSTNAME]
+    firstname = session.attributes["firstname"]
     end_msg = "Hello %s ." % firstname
     return statement(end_msg + "This is the talk to intent.")
 
@@ -221,7 +210,7 @@ def get_quote_type():
 
 @ask.intent("QuoteIntent")
 def give_quote(category='positive'):
-
+    session.attributes["STATE"] = 'GetQuoteType'
     try:
         if category != request['intent']['slots']['Category']['value']:
             category = request['intent']['slots']['Category']['value']
@@ -237,9 +226,121 @@ def give_quote(category='positive'):
     return question(quote_msg)
 
 
+@ask.intent('SuicideHotLine')
+def provide_hot_line():
+    session.attributes["STATE"] = 'SuicideHotLine'
+    suicide_statement = render_template('suicide')
+    return statement(suicide_statement).standard_card(title='National Suicide Prevention Lifeline',
+                                                      text='Call Now at 1-800-273-8255 ',
+                                                      large_image_url='https://upload.wikimedia.org/wikipedia/commons/'
+                                                                      'thumb/4/41/Lifelinelogo.svg/1200px-Lifelinelogo'
+                                                                      '.svg.png')
+
+
+@ask.intent('RecommendTherapist')
+def recommend_therapist():
+    '''
+    Using location and Google Maps & Places API, find nearby therapists and give contact information and open hours.
+    :return:
+    '''
+    session.attributes["STATE"] = 'RecommendTherapist'
+    query = "therapist OR psychiatrist"
+    try:
+        address = get_location()
+    # address is not successfully found, raise ValueError and catch it here
+    except ValueError as er:
+        return statement(str(er)).consent_card("read::alexa:device:all:address")
+
+    api_key = os.environ['GOOGLE_API_KEY']
+    kwargs_geocode = {'key': api_key}
+    g = geocoder.google(address, **kwargs_geocode)
+    coordinates = g.latlng
+    location = "{},{}".format(coordinates[0], coordinates[1])
+
+    query_place_url = "https://maps.googleapis.com/maps/api/place/textsearch/json?location={}&query={}&key={}"\
+        .format(location, query, api_key)
+
+    queried_places_request = requests.get(query_place_url)
+    if queried_places_request.status_code == 200:
+        therapist_places = queried_places_request.json()
+    else:
+        return statement("Sorry, I'm having trouble doing that right now. Please try again later.")
+
+    results = therapist_places['results']
+    currently_opened = False
+    availability = 'unknown'
+    # find first open place
+    for place in results:
+        try:
+            if place['opening_hours']['open_now'] is True:
+                place_id = place['place_id']
+                name = place['name']
+                therapist_address = place['formatted_address']
+                currently_opened = True
+                availability = 'available'
+                break
+        except KeyError:
+            continue
+
+    # If no open places, find closest place
+    if not currently_opened:
+        place_id = results[0]['place_id']
+        name = results[0]['name']
+        therapist_address = results[0]['formatted_address']
+        availability = 'not available'
+
+    detailed_url = "https://maps.googleapis.com/maps/api/place/details/json?placeid={}&key={}".format(place_id, api_key)
+    detailed_place_request = requests.get(detailed_url)
+    if detailed_place_request.status_code == 200:
+        detailed_place = detailed_place_request.json()
+
+        phone = detailed_place['result']['formatted_phone_number']
+        hours_list = detailed_place['result']['opening_hours']['weekday_text']
+        hours_message = "\n ".join(hours_list)
+        try:
+            photo_reference = detailed_place['result']['photos'][0]['photo_reference']
+            max_width = 1200
+            max_height = 800
+            place_photo_url = "https://maps.googleapis.com/maps/api/place/photo?photoreference={}&maxheight={}&maxwidth={}&key={}"\
+                .format(photo_reference, max_height, max_width, api_key)
+            photo_request = requests.get(place_photo_url)
+            if photo_request.status_code == 200:
+                photo = photo_request.request.url
+            else:
+                photo = "https://images.unsplash.com/photo-1489533119213-66a5cd877091?ixlib=rb-0.3.5&ixid" \
+                        "=eyJhcHBfaWQiOjEyMDd9&s=7c006c52fd09caf4e97536de8fcf5067&auto=format&fit=crop&w=1051&q=80"
+        # If no photos in the Google Place, set to default photo
+        except KeyError:
+            photo = "https://images.unsplash.com/photo-1489533119213-66a5cd877091?ixlib=rb-0.3.5&ixid" \
+                    "=eyJhcHBfaWQiOjEyMDd9&s=7c006c52fd09caf4e97536de8fcf5067&auto=format&fit=crop&w=1051&q=80"
+
+        message = render_template('therapist', availability=availability, name=name, phone=phone)
+        card = "Name: {} \n Address: {} \n Phone: {} \n Availability: \n {}".\
+            format(name, therapist_address, phone, hours_message)
+        return statement(message).standard_card(title="I've found a nearby therapist that you can talk to",
+                                                text=card, large_image_url=photo)
+    else:
+        return statement("Sorry, I'm having trouble doing that right now. Please try again later.")
+
+
+@ask.intent('GiveAdvice')
+def give_advice():
+    session.attributes["STATE"] = 'GiveAdvice'
+    with open("templates.yaml", 'r') as stream:
+        out = yaml.load(stream)
+        all_advice = out['advice_list']
+    advice = random.choice(all_advice) + '<break time="1s"/> '
+    advice_message = render_template('advice_message') + advice + 'I hope that was able to help you. If you wish to ' \
+                                                                  'hear more ideas about what you can do to improve ' \
+                                                                  'your mood, say more ideas. For other features, ' \
+                                                                  'say help. Otherwise, say stop to stop. '
+    advice_message_ssml = '<speak> ' + advice_message + ' </speak>'
+    return question(advice_message_ssml)
+
 ##############################
 # Overriding Required Intents
 ##############################
+
 
 @ask.intent('AMAZON.HelpIntent')
 def help():
@@ -250,7 +351,7 @@ def help():
 @ask.intent('AMAZON.StopIntent')
 def stop():
     try:
-        firstname = session.attributes[SESSION_FIRSTNAME]
+        firstname = session.attributes['firstname']
     except KeyError:
         firstname = 'my friend'
     bye_message = render_template("bye", firstname=firstname)
@@ -286,6 +387,28 @@ def get_brainy_quotes(category, number_of_quotes=10):
 
     result = quotes[:number_of_quotes]
     return len(result)
+
+
+def get_location():
+    '''
+    This function will get the zip code of the user if location is permitted.
+    :return: a formatted string with address of user
+    '''
+    URL = "https://api.amazonalexa.com/v1/devices/{}/settings" \
+          "/address".format(context.System.device.deviceId)
+    TOKEN = context.System.user.permissions.consentToken
+    HEADER = {'Accept': 'application/json',
+              'Authorization': 'Bearer {}'.format(TOKEN)}
+    r = requests.get(URL, headers=HEADER)
+    if r.status_code == 200:
+        alexa_location = r.json()
+    else:
+        raise ValueError('Sorry, but your location could not be found. Please enable it by allowing access to '
+                         'your location via the Alexa app, and try again to fully utilize this feature. Thank you.')
+
+    address = "{} {}".format(alexa_location["addressLine1"],
+                             alexa_location["city"])
+    return address
 
 
 def get_dialog_state():
