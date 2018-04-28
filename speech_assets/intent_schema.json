@@ -1,0 +1,395 @@
+{
+  "intents": [
+    {
+      "name": "AMAZON.CancelIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.HelpIntent",
+      "samples": [
+        "I need assistance",
+        "assist",
+        "assist me",
+        "help me",
+        "what is supported",
+        "what can I say",
+        "features",
+        "what features are supported",
+        "I need help"
+      ]
+    },
+    {
+      "name": "AMAZON.StopIntent",
+      "samples": []
+    },
+    {
+      "name": "SurveyIntent",
+      "slots": [
+        {
+          "name": "StartSurvey",
+          "type": "Confirmation"
+        },
+        {
+          "name": "One",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "four",
+            "three ",
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Two",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "four",
+            "three",
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Three",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "four",
+            "three",
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Four",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Five",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Six",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Seven",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "four",
+            "three",
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Eight",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "four",
+            "three",
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Nine",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Ten",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "four",
+            "three",
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Eleven",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "four",
+            "three",
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Twelve",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Thirteen",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Fourteen",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Fifteen",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "four",
+            "three",
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "Sixteen",
+          "type": "AMAZON.NUMBER",
+          "samples": [
+            "two",
+            "one",
+            "zero"
+          ]
+        },
+        {
+          "name": "BonusOneWait",
+          "type": "Confirmation"
+        },
+        {
+          "name": "BonusOne",
+          "type": "AMAZON.SearchQuery"
+        },
+        {
+          "name": "BonusTwoWait",
+          "type": "Confirmation"
+        },
+        {
+          "name": "BonusTwo",
+          "type": "AMAZON.SearchQuery"
+        },
+        {
+          "name": "BonusThreeWait",
+          "type": "Confirmation"
+        },
+        {
+          "name": "BonusThree",
+          "type": "AMAZON.SearchQuery"
+        }
+      ],
+      "samples": [
+        "start survey",
+        "evaluation",
+        "hamilton depression rating survey",
+        "hamilton survey",
+        "depression survey",
+        "survey please",
+        "I choose the survey",
+        "I choose survey",
+        "I want the survey",
+        "I want survey",
+        "survey"
+      ]
+    },
+    {
+      "name": "NameIntent",
+      "slots": [
+        {
+          "name": "FirstName",
+          "type": "AMAZON.US_FIRST_NAME"
+        }
+      ],
+      "samples": [
+        "{FirstName}",
+        "I go by {FirstName}",
+        "My first name is {FirstName}",
+        "I'm {FirstName}",
+        "I am {FirstName}",
+        "My name is {FirstName}"
+      ]
+    },
+    {
+      "name": "AMAZON.RepeatIntent",
+      "samples": [
+        "can you repeat that",
+        "I did not catch that",
+        "i didn't catch that",
+        "can you say that again",
+        "repeat that",
+        "repeat please",
+        "repeat",
+        "can you repeat the question"
+      ]
+    },
+    {
+      "name": "AMAZON.YesIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.NoIntent",
+      "samples": []
+    },
+    {
+      "name": "QuoteIntent",
+      "slots": [
+        {
+          "name": "Category",
+          "type": "QuoteType"
+        }
+      ],
+      "samples": [
+        "I want to listen to more quotes",
+        "show me some {Category}",
+        "show me some {Category} quotes",
+        "get quotes about {Category}",
+        "find quotes about {Category}",
+        "find me a quote about {Category}",
+        "get me a quote about {Category}",
+        "give me a quote about {Category}",
+        "I want to listen to quotes about {Category}",
+        "I want to hear quotes about {Category}",
+        "find {Category} quotes",
+        "get {Category} quotes",
+        "I want to hear more {Category} quotes",
+        "I want to listen to more {Category} quotes",
+        "more {Category} quotes",
+        "I want more {Category} quotes",
+        "{Category} quotes",
+        "I want to listen to {Category} quotes",
+        "I want to hear {Category} quotes",
+        "more quotes",
+        "I want more quotes"
+      ]
+    },
+    {
+      "name": "GetQuoteTypeIntent",
+      "slots": [
+        {
+          "name": "Category",
+          "type": "QuoteType",
+          "samples": [
+            "I want to listen to {Category} quotes",
+            "I want to hear {Category} quotes",
+            "{Category} quotes",
+            "I want {Category} quotes",
+            "{Category}"
+          ]
+        }
+      ],
+      "samples": [
+        "get me quotes",
+        "show me a quote",
+        "show me quotes",
+        "show me some quotes",
+        "find quotes",
+        "find me a quote",
+        "get me a quote",
+        "give me a quote",
+        "what kind of quotes are there",
+        "what type of quotes do you have",
+        "get quote",
+        "get quote type",
+        "quote type",
+        "what are the available quotes",
+        "what type of quotes are available",
+        "I want to hear some quotes",
+        "I want to listen to some quotes",
+        "I need quotes",
+        "I want quotes",
+        "I need some quotes",
+        "I want some quotes",
+        "quotes",
+        "quote"
+      ]
+    },
+    {
+      "name": "SuicideHotLine",
+      "slots": [
+        {
+          "name": "TriggerWords",
+          "type": "TriggerWords"
+        }
+      ],
+      "samples": [
+        "{TriggerWords}"
+      ]
+    },
+    {
+      "name": "RecommendTherapist",
+      "slots": [],
+      "samples": [
+        "recommend therapist",
+        "therapist recommendations",
+        "talk to a therapist",
+        "I need to talk to a therapist",
+        "find a therapist near me",
+        "find a therapist",
+        "find therapists near me",
+        "find therapist near me",
+        "find therapists ",
+        "find therapist",
+        "therapist"
+      ]
+    },
+    {
+      "name": "GiveAdvice",
+      "slots": [],
+      "samples": [
+        "remedies",
+        "remedy",
+        "natural remedies",
+        "natural remedy",
+        "give me more advice",
+        "give me more ideas",
+        "more advice",
+        "more ideas",
+        "give advice",
+        "give me advice",
+        "ideas",
+        "advice",
+        "I need ideas",
+        "I want to feel better",
+        "what should I do",
+        "what can I do",
+        "I need advice"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+SurveyIntent start survey
+SurveyIntent evaluation
+SurveyIntent hamilton depression rating survey
+SurveyIntent hamilton survey
+SurveyIntent depression survey
+SurveyIntent survey please
+SurveyIntent I choose the survey
+SurveyIntent I choose survey
+SurveyIntent I want the survey
+SurveyIntent I want survey
+SurveyIntent survey
+
+NameIntent {FirstName}
+NameIntent I go by {FirstName}
+NameIntent My first name is {FirstName}
+NameIntent I'm {FirstName}
+NameIntent I am {FirstName}
+NameIntent My name is {FirstName}
+
+QuoteIntent I want to listen to more quotes
+QuoteIntent show me some {Category}
+QuoteIntent show me some {Category} quotes
+QuoteIntent get quotes about {Category}
+QuoteIntent find quotes about {Category}
+QuoteIntent find me a quote about {Category}
+QuoteIntent get me a quote about {Category}
+QuoteIntent give me a quote about {Category}
+QuoteIntent I want to listen to quotes about {Category}
+QuoteIntent I want to hear quotes about {Category}
+QuoteIntent find {Category} quotes
+QuoteIntent get {Category} quotes
+QuoteIntent I want to hear more {Category} quotes
+QuoteIntent I want to listen to more {Category} quotes
+QuoteIntent more {Category} quotes
+QuoteIntent I want more {Category} quotes
+QuoteIntent {Category} quotes
+QuoteIntent I want to listen to {Category} quotes
+QuoteIntent I want to hear {Category} quotes
+QuoteIntent more quotes
+QuoteIntent I want more quotes
+
+
+GetQuoteTypeIntent get me quotes
+GetQuoteTypeIntent show me a quote
+GetQuoteTypeIntent show me quotes
+GetQuoteTypeIntent show me some quotes
+GetQuoteTypeIntent find quotes
+GetQuoteTypeIntent find me a quote
+GetQuoteTypeIntent get me a quote
+GetQuoteTypeIntent give me a quote
+GetQuoteTypeIntent what kind of quotes are there
+GetQuoteTypeIntent what type of quotes do you have
+GetQuoteTypeIntent get quote
+GetQuoteTypeIntent get quote type
+GetQuoteTypeIntent quote type
+GetQuoteTypeIntent what are the available quotes
+GetQuoteTypeIntent what type of quotes are available
+GetQuoteTypeIntent I want to hear some quotes
+GetQuoteTypeIntent I want to listen to some quotes
+GetQuoteTypeIntent I need quotes
+GetQuoteTypeIntent I want quotes
+GetQuoteTypeIntent I need some quotes
+GetQuoteTypeIntent I want some quotes
+GetQuoteTypeIntent quotes
+GetQuoteTypeIntent quote
+
+RecommendTherapist recommend therapist
+RecommendTherapist therapist recommendations
+RecommendTherapist talk to a therapist
+RecommendTherapist I need to talk to a therapist
+RecommendTherapist find a therapist near me
+RecommendTherapist find a therapist
+RecommendTherapist find therapists near me
+RecommendTherapist find therapist near me
+RecommendTherapist find therapists
+RecommendTherapist find therapist
+RecommendTherapist therapist
+
+GiveAdvice remedies
+GiveAdvice remedy
+GiveAdvice natural remedies
+GiveAdvice natural remedy
+GiveAdvice give me more advice
+GiveAdvice give me more ideas
+GiveAdvice more advice
+GiveAdvice more ideas
+GiveAdvice give advice
+GiveAdvice give me advice
+GiveAdvice ideas
+GiveAdvice advice
+GiveAdvice I need ideas
+GiveAdvice I want to feel better
+GiveAdvice what should I do
+GiveAdvice what can I do
+GiveAdvice I need advice
+
+SuicideHotLine {TriggerWords}
+
