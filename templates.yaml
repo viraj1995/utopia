@@ -135,5 +135,7 @@ very_severe: |
 reprompt_survey: |
   I'm sorry, but I did not quite understand the answer you gave. Please say a number in the specified range.
 
-bye: Farewell {{firstname}}! Just remember, some days you'll have setbacks, but just know that tomorrow is a new day with new possibilities.
+bye: Farewell {{firstname}}! Thank you for using Utopia, and I wish you an awesome rest of your day.
+
+#Remember, some days you'll have setbacks, but just know that tomorrow is a new day with new possibilities.
 

@@ -54,8 +54,9 @@ def get_name(firstname):
     name_message_reprompt = render_template("official_welcome_reprompt")
     session.attributes["firstname"] = firstname
     session.attributes_encoder = json.JSONEncoder
-    with open('session.json', 'w') as outfile:
-        json.dump(session.attributes, outfile, indent=4, sort_keys=True)
+    # DEBUG
+    # with open('session.json', 'w') as outfile:
+    #     json.dump(session.attributes, outfile, indent=4, sort_keys=True)
     return question(name_message).reprompt(name_message_reprompt)
 
 
@@ -65,7 +66,6 @@ def start_survey():
     dialog_state = get_dialog_state()
     session.attributes_encoder = json.JSONEncoder
 
-    ## ADD IN PROGRESS DIALOG STATE
     if dialog_state == "STARTED":
         session.attributes["COUNT"] = 0
         session.attributes["BONUS_COUNT"] = 0
@@ -128,7 +128,7 @@ def start_survey():
         return delegate()
     elif dialog_state == "COMPLETED":
         # Get last bonus question answer
-        last_question = session.attributes["QUESTION"]
+        last_question = session.attributes.get("QUESTION")
         session.attributes[last_question] = \
             request["intent"]["slots"][last_question]["value"]
         session.attributes['STATE'] = 'SurveyDone'
@@ -186,13 +186,6 @@ def start_survey():
     return question(score_message)
 
 
-@ask.intent("TalkToIntent")
-def talk_to_someone():
-    firstname = session.attributes["firstname"]
-    end_msg = "Hello %s ." % firstname
-    return statement(end_msg + "This is the talk to intent.")
-
-
 @ask.intent("GetQuoteTypeIntent")
 def get_quote_type():
     dialog_state = get_dialog_state()
@@ -218,12 +211,18 @@ def give_quote(category='positive'):
     except KeyError:
         category = session.attributes['Category']
 
-    num_quotes = get_brainy_quotes(category)
-    quote_index = randint(1, num_quotes)
+    zip_quotes = get_brainy_quotes(category)
+    quotes = list(zip_quotes)
+    session.attributes['Quotes'] = quotes
+    quote_index = randint(1, len(quotes))
+    rand_quote = quotes[quote_index][0]
+    rand_quote_picture = quotes[quote_index][1]
 
-    quote = session.attributes['Quote{}'.format(num2words(quote_index).capitalize())]
-    quote_msg = render_template('quote', category=category, quote=quote)
-    return question(quote_msg)
+    quote_msg = render_template('quote', category=category, quote=rand_quote)
+    return question(quote_msg).standard_card(title='A {0} quote for you!'.format(category),
+                                             text=rand_quote,
+                                             small_image_url=rand_quote_picture,
+                                             large_image_url=rand_quote_picture)
 
 
 @ask.intent('SuicideHotLine')
@@ -238,7 +237,7 @@ def provide_hot_line():
 
 
 @ask.intent('RecommendTherapist')
-def recommend_therapist():
+def recommend_therapist(address):
     '''
     Using location and Google Maps & Places API, find nearby therapists and give contact information and open hours.
     :return:
@@ -318,7 +317,9 @@ def recommend_therapist():
         card = "Name: {} \n Address: {} \n Phone: {} \n Availability: \n {}".\
             format(name, therapist_address, phone, hours_message)
         return statement(message).standard_card(title="I've found a nearby therapist that you can talk to",
-                                                text=card, large_image_url=photo)
+                                                text=card,
+                                                small_image_url=photo,
+                                                large_image_url=photo)
     else:
         return statement("Sorry, I'm having trouble doing that right now. Please try again later.")
 
@@ -326,6 +327,7 @@ def recommend_therapist():
 @ask.intent('GiveAdvice')
 def give_advice():
     session.attributes["STATE"] = 'GiveAdvice'
+
     with open("templates.yaml", 'r') as stream:
         out = yaml.load(stream)
         all_advice = out['advice_list']
@@ -366,7 +368,7 @@ def session_ended():
 ##############################
 # Helper Functions
 ##############################
-def get_brainy_quotes(category, number_of_quotes=10):
+def get_brainy_quotes(category, number_of_quotes=25):
     popular_choice = ['motivational', 'inspirational',
                       'life', 'smile', 'family', 'positive',
                       'friendship', 'success', 'happiness', 'love']
@@ -375,18 +377,19 @@ def get_brainy_quotes(category, number_of_quotes=10):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
     quotes = []
-    for i, quote in enumerate(soup.find_all('a', {'title': 'view quote'})):
-        if isinstance(quote.contents[0], NavigableString):
-            session.attributes['Quote{}'.format(num2words(i + 1).capitalize())] = \
-                str(quote.contents[0]).replace('-', 'By')
-            quotes.append(str(quote.contents[0]).replace('-', 'By'))
-        elif isinstance(quote.contents[0], Tag):
-            session.attributes['Quote{}'.format(num2words(i + 1).capitalize())] = \
-                quote.contents[0].attrs['alt'].replace('-', 'By')
+    src_picture = []
+    for quote in soup.find_all('a', {'title': 'view quote'}):
+        # if isinstance(quote.contents[0], NavigableString):
+        #
+        #     quotes.append(str(quote.contents[0]).replace('-', 'By'))
+        if isinstance(quote.contents[0], Tag):
+
+            src_picture.append("https://www.brainyquote.com/" + quote.contents[0].attrs['src'])
             quotes.append(quote.contents[0].attrs['alt'].replace('-', 'By'))
 
-    result = quotes[:number_of_quotes]
-    return len(result)
+    result = zip(quotes, src_picture)
+    # result = quotes[:number_of_quotes]
+    return result
 
 
 def get_location():
