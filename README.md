@@ -1,4 +1,6 @@
 # Utopia: An Alexa skill that helps with depression
+[![Build Status](https://travis-ci.org/k-chuang/utopia-alexa-skill.svg?branch=master)](https://travis-ci.org/k-chuang/utopia-alexa-skill) [![codecov](https://codecov.io/gh/k-chuang/utopia-alexa-skill/branch/master/graph/badge.svg)](https://codecov.io/gh/k-chuang/utopia-alexa-skill)
+
 
 Utopia is the name of the Alexa skill that is designed to help people with depression.
 
@@ -10,7 +12,7 @@ Utopia is the name of the Alexa skill that is designed to help people with depre
 ***Libellus vere aureus, nec minus salutaris quam festivus, de optimo rei publicae statu deque nova insula Utopia***
 
 The term was first coined by Thomas Moore (1478–1535), and was originally a fictional book
-that described a perfect world. 
+that described a perfect world.
 
 Utopia is the idea of a perfect place that has been designed to have no problems.
 
@@ -21,19 +23,19 @@ suffer from depression. Depression is the leading cause of disability.
 
 This skill is meant to help people who are going through depression. The main feature of this skill involves taking
 the [Hamilton Depression Rating Scale Survey](https://www.psychcongress.com/saundras-corner/scales-screeners/depression/hamilton-depression-rating-scale-ham-d) to get a general idea of the severity of depression, and based on the score
-of the survey, the skill would recommend certain natural remedies to help. The other complementary features include giving 
-positive and motivational quotes (other types of quotes are also supported), proposing natural solutions 
-(exercising, going out, talking to family & friends, and much more), a mindfulness meditation exercise, 
-recommendations for nearby therapists, and, if necessary, getting help from the National Suicide Prevention Lifeline. 
+of the survey, the skill would recommend certain natural remedies to help. The other complementary features include giving
+positive and motivational quotes (other types of quotes are also supported), proposing natural solutions
+(exercising, going out, talking to family & friends, and much more), a mindfulness meditation exercise,
+recommendations for nearby therapists, and, if necessary, getting help from the National Suicide Prevention Lifeline.
 
-**Disclaimer**: Utopia is not meant to be a substitute for professional medical advice, treatment or diagnosis. 
+**Disclaimer**: Utopia is not meant to be a substitute for professional medical advice, treatment or diagnosis.
 It is more of a supplemental and informational helper to mitigate depression. The people who programmed this are not experts in mental illnesses such as depression,
 and this is a product of our subjectivity and couple months of basic research on depression.
 
 
 ## Technology
 
-Utopia is powered by Python, [Flask-Ask](http://flask-ask.readthedocs.io/en/latest/) (an extension of [Flask](http://flask.pocoo.org/docs/0.12/), 
+Utopia is powered by Python, [Flask-Ask](http://flask-ask.readthedocs.io/en/latest/) (an extension of [Flask](http://flask.pocoo.org/docs/0.12/),
 a micro web framework), and the Alexa Skills kit.
 
 ## How to use
@@ -62,4 +64,3 @@ To just start and see the available features, you can say the following:
 
 ## To Be Continued...
 I will add more to this as I get farther into the project.
-
