@@ -80,12 +80,13 @@ def start_survey():
             return stop()
 
         survey_question = session.attributes["QUESTION"]
+        # For bonus question
         previous_question = session.attributes["PREV_QUESTION"]
         # If regular survey questions
         if not re.match("Bonus", survey_question):
             if 'value' in request["intent"]["slots"][survey_question]:
 
-                if request["intent"]["slots"][survey_question]["value"] not in ('0', '1', '2', '3', '4'):
+                if str(request["intent"]["slots"][survey_question]["value"]) not in ('0', '1', '2', '3', '4'):
                     reprompt_answer = render_template("reprompt_survey")
                     return elicit_slot(survey_question, reprompt_answer)
 
@@ -154,31 +155,26 @@ def start_survey():
 
     session.attributes["HAMD_SCORE"] = score
 
-    # Dumping session data for debug
-    # with open('session.json', 'w') as outfile:
-    #     json.dump(session.attributes, outfile, indent=4, sort_keys=True)
-
     if score >= 0 and score <= 7:
         # Normal
         score_message = render_template('normal', score=score)
-        session.attributes['Severity'] = 'Normal'
+        session.attributes['Severity'] = 'normal'
     elif score > 7 and score <= 13:
         # Mild Depression
         score_message = render_template('mild', score=score)
-        session.attributes['Severity'] = 'Mild'
+        session.attributes['Severity'] = 'mild'
     elif score > 13 and score <= 18:
         # Moderate Depression
         score_message = render_template('moderate', score=score)
-        session.attributes['Severity'] = 'Moderate'
+        session.attributes['Severity'] = 'moderate'
     elif score > 18 and score <= 22:
         # Severe Depression (Will categorize in the same category as very severe depression)
         score_message = render_template('severe', score=score)
-        session.attributes['Severity'] = 'Severe'
-
+        session.attributes['Severity'] = 'severe'
     elif score > 22:
         # Very Severe Depression
         score_message = render_template('very_severe', score=score)
-        session.attributes['Severity'] = 'Very Severe'
+        session.attributes['Severity'] = 'very severe'
 
     else:
         score_message = 'Sorry, I was unable to calculate your Hamilton survey score. Please try again later.'

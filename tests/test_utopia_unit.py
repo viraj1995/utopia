@@ -6,6 +6,8 @@ import os
 import tests.request_json as request_json
 from flask import current_app
 from mock import patch
+from nose_parameterized import parameterized
+import ast
 
 
 class TestUtopiaApp(unittest.TestCase):
@@ -38,6 +40,49 @@ class TestUtopiaApp(unittest.TestCase):
         """Test Session End."""
         response = self.app.post('/', data=json.dumps(request_json.sess_end_body))
         self.assertEqual(200, response.status_code)
+
+    @parameterized.expand([
+        ('dialog_started', 'STARTED', None, None, None, None),
+        ('dialog_in_progress_not_bonus_question_pass', 'IN_PROGRESS', False, None, None, None),
+        ('dialog_in_progress_not_bonus_question_fail', 'IN_PROGRESS', False, None, None, None),
+        ('dialog_in_progress_bonus_question', 'IN_PROGRESS', True, None, None, None),
+        ('dialog_completed_normal_severity', 'COMPLETED', None, 'normal', 0, 7),
+        ('dialog_completed_mild_severity', 'COMPLETED', None, 'mild', 8, 13),
+        ('dialog_completed_moderate_severity', 'COMPLETED', None, 'moderate', 14, 18),
+        ('dialog_completed_severe_severity', 'COMPLETED', None, 'severe', 19, 22),
+        ('dialog_completed_very_severe_severity', 'COMPLETED', None, 'very severe', 23, 50),
+    ])
+    def test_survey_intent(self, name, dialog_state, bonus_question, severity, lower_limit, upper_limit):
+        """Test SurveyIntent with different test cases"""
+        response = self.app.post('/',
+                                 data=json.dumps(request_json.generate_survey(name, dialog_state, bonus_question, severity)))
+        self.assertEqual(200, response.status_code)
+        data = json.loads(response.data.decode('utf-8'))
+        if dialog_state == 'STARTED':
+            self.assertEqual('One', data['sessionAttributes']['QUESTION'])
+            self.assertEqual(0, data['sessionAttributes']['HAMD_SCORE'])
+            self.assertEqual(0, data['sessionAttributes']['COUNT'])
+            self.assertEqual(0, data['sessionAttributes']['BONUS_COUNT'])
+            self.assertEqual('BonusOne', data['sessionAttributes']['PREV_QUESTION'])
+            self.assertFalse(data['response']['shouldEndSession'])
+        elif dialog_state == 'IN_PROGRESS':
+            if not bonus_question and name.split('_')[-1] == 'pass':
+                self.assertFalse(data['response']['shouldEndSession'])
+                self.assertEqual('Three', data['sessionAttributes']['QUESTION'])
+                self.assertEqual(2, data['sessionAttributes']['HAMD_SCORE'])
+                self.assertEqual(3, data['sessionAttributes']['COUNT'])
+            elif not bonus_question and name.split('_')[-1] == 'fail':
+                self.assertEqual('Dialog.ElicitSlot', data['response']['directives'][0]['type'])
+                self.assertFalse(data['response']['shouldEndSession'])
+                self.assertTrue('Please say a number in the specified range.' in
+                                data['response']['outputSpeech']['text'])
+            elif bonus_question:
+                self.assertEqual('happy great awesome', data['sessionAttributes']['BonusOne'])
+                self.assertEqual('BonusTwo', data['sessionAttributes']['QUESTION'])
+        elif dialog_state == 'COMPLETED':
+            self.assertFalse(data['response']['shouldEndSession'])
+            self.assertEqual(severity, data['sessionAttributes']['Severity'])
+            self.assertTrue(lower_limit <= data['sessionAttributes']['HAMD_SCORE'] <= upper_limit)
 
     def test_name_intent(self):
         """Test NameIntent"""
@@ -79,32 +124,6 @@ class TestUtopiaApp(unittest.TestCase):
         self.assertEqual('I\'ve found a nearby therapist that you can talk to', data['response']['card']['title'])
         self.assertTrue('I\'ve found a therapist near you.' in data['response']['outputSpeech']['text'])
         self.assertEqual('RecommendTherapist', data['sessionAttributes']['STATE'])
-
-    def test_survey_intent_completed_mild_severity(self):
-        """Test SurveyIntent"""
-        response = self.app.post('/', data=json.dumps(request_json.take_survey_body))
-        self.assertEqual(200, response.status_code)
-        data = json.loads(response.data.decode('utf-8'))
-        self.assertEqual(9.04, data['sessionAttributes']['HAMD_SCORE'])
-        self.assertEqual('SurveyDone', data['sessionAttributes']['STATE'])
-        self.assertEqual('Mild', data['sessionAttributes']['Severity'])
-
-    # def test_survey_intent_completed_normal_severity(self):
-    #     """Test SurveyIntent"""
-    #     # original_survey_body = request_json.take_survey_body
-    #     new_survey_body = request_json.take_survey_body
-    #     for x in new_survey_body['request']['intent']['slots']:
-    #         if isinstance(new_survey_body['request']['intent']['slots'][x]['value'], int):
-    #             new_survey_body['request']['intent']['slots'][x]['value'] = 0
-    #     for y in new_survey_body['session']['attributes']:
-    #         if y.lower()
-    #     response = self.app.post('/', data=json.dumps(request_json.take_survey_body))
-    #     self.assertEqual(200, response.status_code)
-    #     data = json.loads(response.data.decode('utf-8'))
-    #     self.assertEqual(9.04, data['sessionAttributes']['HAMD_SCORE'])
-    #     self.assertEqual('SurveyDone', data['sessionAttributes']['STATE'])
-    #     self.assertEqual('Mild', data['sessionAttributes']['Severity'])
-
 
     def test_get_quote_type_intent(self):
         """Test GetQuoteTypeIntent."""

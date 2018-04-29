@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from pprint import pprint
 
 launch_body = {
     "request": {
@@ -115,7 +116,7 @@ get_quote_type_completed_body = {
         "application": {
             "applicationId": "amzn1.ask.skill"
         },
-        "new": True,
+        "new": False,
         "sessionId": "amzn1.echo-api.session",
         "user": {
             "userId": "amzn1.ask.account"
@@ -250,155 +251,278 @@ give_advice_body = {
     "version": "1.0"
 }
 
-take_survey_body = {
+general_survey_body = {
     "context": {
-        "device": {
-            "deviceId": "amzn1.ask.device"
-            },
+
         "user": {
             "userId": "amzn1.ask.account"
+        },
+        "device": {
+            "deviceId": "amzn1.ask.device",
+            "supportedInterfaces": {
+                "AudioPlayer": {},
+                "Display": {
+                    "markupVersion": "1.0",
+                    "templateVersion": "1.0"
+                }
+            }
         }
     },
     "request": {
-        "dialogState": "COMPLETED",
+        "dialogState": None,
         "intent": {
-            "confirmationStatus": "NONE",
             "name": "SurveyIntent",
             "slots": {
                 "BonusOne": {
                     "name": "BonusOne",
-                    "value": "happy great awesome"
+
                 },
                 "BonusOneWait": {
                     "name": "BonusOneWait",
-                    "value": "yes"
+
                 },
                 "BonusThree": {
                     "name": "BonusThree",
-                    "value": "confident happy content"
+
                 },
                 "BonusThreeWait": {
                     "name": "BonusThreeWait",
-                    "value": "yes"
+
                 },
                 "BonusTwo": {
                     "name": "BonusTwo",
-                    "value": "stressful busy hard"
+
                 },
                 "BonusTwoWait": {
                     "name": "BonusTwoWait",
-                    "value": "yes"
+
                 },
                 "Eight": {
                     "name": "Eight",
-                    "value": "0"
+
                 },
                 "Eleven": {
                     "name": "Eleven",
-                    "value": "0"
+
                 },
                 "Fifteen": {
                     "name": "Fifteen",
-                    "value": "1"
+
                 },
                 "Five": {
                     "name": "Five",
-                    "value": "1"
+
                 },
                 "Four": {
                     "name": "Four",
-                    "value": "0"
+
                 },
                 "Fourteen": {
                     "name": "Fourteen",
-                    "value": "0"
+
                 },
                 "Nine": {
                     "name": "Nine",
-                    "value": "1"
+
                 },
                 "One": {
                     "name": "One",
-                    "value": "0"
+
                 },
                 "Seven": {
                     "name": "Seven",
-                    "value": "2"
+
                 },
                 "Six": {
                     "name": "Six",
-                    "value": "0"
+
                 },
                 "Sixteen": {
                     "name": "Sixteen",
-                    "value": "2"
+
                 },
                 "StartSurvey": {
                     "name": "StartSurvey",
-                    "value": "yes"
+
                 },
                 "Ten": {
                     "name": "Ten",
-                    "value": "2"
+
                 },
                 "Thirteen": {
                     "name": "Thirteen",
-                    "value": "0"
+
                 },
                 "Three": {
                     "name": "Three",
-                    "value": "0"
+
                 },
                 "Twelve": {
                     "name": "Twelve",
-                    "value": "0"
+
                 },
                 "Two": {
                     "name": "Two",
-                    "value": "0"
+
                 }
             }
         },
         "locale": "en-US",
         "requestId": "amzn1.echo-api.request",
-        "timestamp": "2018-04-26T05:14:05Z",
+        "timestamp": "2018-04-26T22:45:12Z",
         "type": "IntentRequest"
     },
     "session": {
-        "application": {
-            "applicationId": "amzn1.ask.skill"
-        },
-        "attributes": {
-                "BONUS_COUNT": 3,
-                "BonusOne": "happy great awesome",
-                "BonusTwo": "stressful busy hard",
-                "COUNT": 16,
-                "Eight": 0,
-                "Eleven": 0,
-                "Fifteen": 1,
-                "Five": 1,
-                "Four": 0,
-                "Fourteen": 0,
-                "HAMD_SCORE": 9,
-                "Nine": 1,
-                "One": 0,
-                "PREV_QUESTION": "BonusTwo",
-                "QUESTION": "BonusThree",
-                "STATE": "Survey",
-                "Seven": 2,
-                "Six": 0,
-                "Sixteen": 2,
-                "Ten": 2,
-                "Thirteen": 0,
-                "Three": 0,
-                "Twelve": 0,
-                "Two": 0
-            },
         "new": False,
         "sessionId": "amzn1.echo-api.session",
-        "user": {
-            "userId": "amzn1.ask.account"
+        "application": {
+          "applicationId": "amzn1.ask.skill"
+        },
+        "attributes": {
+            "BONUS_COUNT": None,
+            "BonusOne": None,
+            "BonusTwo": None,
+            "COUNT": None,
+            "Eight": None,
+            "Eleven": None,
+            "Fifteen": None,
+            "Five": None,
+            "Four": None,
+            "Fourteen": None,
+            "HAMD_SCORE": None,
+            "Nine": None,
+            "One": None,
+            "PREV_QUESTION": None,
+            "QUESTION": None,
+            "STATE": None,
+            "Seven": None,
+            "Six": None,
+            "Sixteen": None,
+            "Ten": None,
+            "Thirteen": None,
+            "Three": None,
+            "Twelve": None,
+            "Two": None,
+            "Severity": None
         }
     },
     "version": "1.0"
 }
+
+LIST_OF_QUESTIONS_FOUR = ['One', 'Two', 'Seven', 'Eight',  'Ten', 'Eleven', 'Fifteen']
+SUICIDE_QUESTION = 'Three'
+LIST_OF_QUESTIONS_TWO = ['Four', 'Five', ' Six', 'Nine', 'Twelve', 'Thirteen', 'Fourteen', 'Sixteen']
+LIST_OF_BONUS = ['BonusOne', 'BonusTwo', 'BonusThree', ]
+
+LIST_OF_BONUS_WAIT = ['BonusOneWait', 'BonusTwoWait', 'BonusThreeWait']
+
+
+def generate_survey(name, dialog_completion, bonus_question, test_case):
+
+    # original_survey_body = general_survey_body
+    general_survey_body['request']['dialogState'] = dialog_completion
+
+    # Initialize for start
+    if dialog_completion == 'STARTED':
+        pass
+
+    # Initialize for in progress
+    elif dialog_completion == 'IN_PROGRESS':
+        pass_fail = name.split('_')[-1]
+        if not bonus_question and pass_fail == 'pass':
+
+            general_survey_body['session']['attributes']["COUNT"] = 2
+            general_survey_body['session']['attributes']['QUESTION'] = 'Two'
+            general_survey_body['session']['attributes']["HAMD_SCORE"] = 1
+
+            general_survey_body["request"]["intent"]["slots"]["StartSurvey"]["value"] = 'yes'
+            general_survey_body['request']['intent']['slots']['Two']["value"] = 1
+
+        elif not bonus_question and pass_fail == 'fail':
+            general_survey_body['session']['attributes']["COUNT"] = 3
+            general_survey_body['session']['attributes']['QUESTION'] = 'Three'
+
+            general_survey_body["request"]["intent"]["slots"]["StartSurvey"]["value"] = 'yes'
+            general_survey_body['request']['intent']['slots']['Three']["value"] = '?'
+
+        elif bonus_question:
+            general_survey_body['session']['attributes']["COUNT"] = 16
+            general_survey_body['session']['attributes']['QUESTION'] = 'BonusOne'
+            general_survey_body['session']['attributes']['PREV_QUESTION'] = 'BonusOne'
+            general_survey_body['session']['attributes']['BonusOneWait'] = 'yes'
+            general_survey_body['session']['attributes']['BONUS_COUNT'] = 1
+
+            general_survey_body["request"]["intent"]["slots"]["StartSurvey"]["value"] = 'yes'
+            general_survey_body['request']['intent']['slots']['BonusOneWait']["value"] = 'yes'
+            general_survey_body['request']['intent']['slots']['BonusOne']["value"] = 'happy great awesome'
+            pass
+    # Initialize for completed
+    elif dialog_completion == 'COMPLETED':
+        if test_case.lower() == 'normal':
+            four_question_val = 0
+            two_question_val = 0
+            suicide_question_val = 0
+            hamd_score = 0
+            bonus_val = "happy great awesome"
+        elif test_case.lower() == 'mild':
+            two_question_val = 1
+            four_question_val = 0
+            suicide_question_val = 1
+            bonus_val = "terrible horrible bad"
+            hamd_score = 8
+        elif test_case.lower() == 'moderate':
+            four_question_val = 1
+            two_question_val = 1
+            suicide_question_val = 1
+            bonus_val = "happy great awesome"
+            hamd_score = 16
+        elif test_case.lower() == 'severe':
+            four_question_val = 1
+            two_question_val = 1
+            suicide_question_val = 4
+            bonus_val = "terrible horrible bad "
+            hamd_score = 19
+        elif test_case.lower() == 'very severe':
+            four_question_val = 4
+            two_question_val = 2
+            suicide_question_val = 4
+            bonus_val = "terrible horrible bad"
+            hamd_score = 48
+
+        request_intent_slots = general_survey_body['request']['intent']['slots']
+        for intent_slot in request_intent_slots:
+            if intent_slot in LIST_OF_QUESTIONS_FOUR:
+                general_survey_body['request']['intent']['slots'][intent_slot]['value'] = str(four_question_val)
+            elif intent_slot == SUICIDE_QUESTION:
+                general_survey_body['request']['intent']['slots'][intent_slot]['value'] = str(suicide_question_val)
+            elif intent_slot in LIST_OF_QUESTIONS_TWO:
+                general_survey_body['request']['intent']['slots'][intent_slot]['value'] = str(two_question_val)
+            elif intent_slot in LIST_OF_BONUS:
+                general_survey_body['request']['intent']['slots'][intent_slot]['value'] = bonus_val
+            elif intent_slot in LIST_OF_BONUS_WAIT or intent_slot == 'StartSurvey':
+                general_survey_body['request']['intent']['slots'][intent_slot]['value'] = "yes"
+        sess_attr_list = general_survey_body['session']['attributes']
+        for sess_attr in sess_attr_list:
+            if sess_attr in LIST_OF_QUESTIONS_FOUR:
+                general_survey_body['session']['attributes'][sess_attr] = str(four_question_val)
+            elif sess_attr == SUICIDE_QUESTION:
+                general_survey_body['session']['attributes'][sess_attr] = str(suicide_question_val)
+            elif sess_attr in LIST_OF_QUESTIONS_TWO:
+                general_survey_body['session']['attributes'][sess_attr] = str(two_question_val)
+            elif sess_attr in LIST_OF_BONUS:
+                general_survey_body['session']['attributes'][sess_attr] = bonus_val
+            elif sess_attr in LIST_OF_BONUS_WAIT:
+                general_survey_body['session']['attributes'][sess_attr] = "yes"
+            elif sess_attr == 'QUESTION':
+                general_survey_body['session']['attributes'][sess_attr] = "BonusThree"
+            elif sess_attr == 'HAMD_SCORE':
+                general_survey_body['session']['attributes'][sess_attr] = hamd_score
+
+    return general_survey_body
+
+
+# if __name__ == '__main__':
+#     x = generate_survey('COMPLETED', 'normal')
+#     y = generate_survey('COMPLETED', 'very severe')
+#     pprint(x)
+#     pprint(y)
