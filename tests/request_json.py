@@ -528,10 +528,3 @@ def generate_survey(name, dialog_completion, bonus_question, test_case):
                 general_survey_body['session']['attributes'][sess_attr] = hamd_score
 
     return general_survey_body
-
-
-# if __name__ == '__main__':
-#     x = generate_survey('COMPLETED', 'normal')
-#     y = generate_survey('COMPLETED', 'very severe')
-#     pprint(x)
-#     pprint(y)

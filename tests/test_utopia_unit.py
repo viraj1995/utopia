@@ -4,10 +4,8 @@ import unittest
 import json
 import os
 import tests.request_json as request_json
-from flask import current_app
-from mock import patch
 from nose_parameterized import parameterized
-import ast
+from mock import patch
 
 
 class TestUtopiaApp(unittest.TestCase):
@@ -17,18 +15,13 @@ class TestUtopiaApp(unittest.TestCase):
         app.config['ASK_VERIFY_REQUESTS'] = False
         app.config['SECRET_KEY'] = 'SUPERSECRETKEYBUTNOTREALLY!'
         app.config['TESTING'] = True
-        # self.app_context = app.app_context()
         self.app = app.test_client()
         self.app.testing = True
-
-        # with open('request_body.json', 'rb') as f:
-        #     self.request_json = json.load(f)
         os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
     def tearDown(self):
-        os.chdir(os.path.dirname(__file__))
         """ Test Suite Tear down."""
-        pass
+        os.chdir(os.path.dirname(__file__))
 
     def test_utopia_launch(self):
         """Test Launch Intent."""
