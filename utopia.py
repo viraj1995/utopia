@@ -39,6 +39,7 @@ logger = logging.getLogger('flask_ask').setLevel(logging.DEBUG)
 # When app is first launched, user will wind up here with this @ask.launch decorator
 @ask.launch
 def start_skill():
+    session.attributes["STATE"] = 'Start'
     welcome_message = render_template('initial_welcome')
     welcome_reprompt = render_template('initial_welcome_reprompt')
     return question(welcome_message).reprompt(welcome_reprompt)
@@ -176,15 +177,13 @@ def start_survey():
         score_message = render_template('very_severe', score=score)
         session.attributes['Severity'] = 'very severe'
 
-    else:
-        score_message = 'Sorry, I was unable to calculate your Hamilton survey score. Please try again later.'
-
     return question(score_message)
 
 
 @ask.intent("GetQuoteTypeIntent")
 def get_quote_type():
     dialog_state = get_dialog_state()
+    session.attributes["STATE"] = 'GetQuoteType'
     session.attributes_encoder = json.JSONEncoder
     if dialog_state == 'STARTED':
         session.attributes['Category'] = 'positive'
@@ -198,19 +197,20 @@ def get_quote_type():
 
 
 @ask.intent("QuoteIntent")
-def give_quote(category='positive'):
-    session.attributes["STATE"] = 'GetQuoteType'
+def give_quote(category):
+
+    session.attributes["STATE"] = 'GiveQuote'
     try:
-        if category != request['intent']['slots']['Category']['value']:
-            category = request['intent']['slots']['Category']['value']
-            session.attributes['Category'] = category
+        category = request['intent']['slots']['Category']['value']
+        session.attributes['Category'] = category
     except KeyError:
         category = session.attributes['Category']
 
+    session.attributes['Category'] = category
     zip_quotes = get_brainy_quotes(category)
     quotes = list(zip_quotes)
     session.attributes['Quotes'] = quotes
-    quote_index = randint(1, len(quotes))
+    quote_index = randint(0, len(quotes) - 1)
     rand_quote = quotes[quote_index][0]
     rand_quote_picture = quotes[quote_index][1]
 
@@ -239,7 +239,8 @@ def recommend_therapist(address):
     :return:
     '''
     session.attributes["STATE"] = 'RecommendTherapist'
-    query = "therapist OR psychiatrist"
+    # query = "therapist psychiatrist psychologist"
+    query = "therapist"
     try:
         address = get_location()
     # address is not successfully found, raise ValueError and catch it here
@@ -252,43 +253,85 @@ def recommend_therapist(address):
     coordinates = g.latlng
     location = "{},{}".format(coordinates[0], coordinates[1])
 
-    query_place_url = "https://maps.googleapis.com/maps/api/place/textsearch/json?location={}&query={}&key={}"\
+    # Get nearby therapists that are open
+    query_place_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={}&radius=20000&keyword={}&opennow=True&key={}"\
         .format(location, query, api_key)
 
-    queried_places_request = requests.get(query_place_url)
-    if queried_places_request.status_code == 200:
-        therapist_places = queried_places_request.json()
+    open_places_request = requests.get(query_place_url)
+    if open_places_request.status_code == 200:
+        therapist_places = open_places_request.json()
+
+        # Can't find any open places, default to all places
+        if therapist_places['status'] == 'ZERO_RESULTS':
+            new_query_place_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={}&radius=20000&keyword={}&key={}" \
+                .format(location, query, api_key)
+            closed_places_request = requests.get(new_query_place_url)
+            if closed_places_request.status_code == 200:
+                therapist_places = closed_places_request.json()
+            results = therapist_places['results']
+
+            place = [closed_place for closed_place in results if 'opening_hours' in closed_place]
+            place = place[0]
+            # for closed_place in results:
+            #     if 'opening_hours' in closed_place:
+            #         place = closed_place
+            #place = results[0]
+            place_id = place['place_id']
+            name = place['name']
+            availability = 'not available'
+
+        elif therapist_places['status'] == 'OK':
+            results = therapist_places['results']
+            place = results[0]
+            place_id = place['place_id']
+            name = place['name']
+            availability = 'available'
+
     else:
         return statement("Sorry, I'm having trouble doing that right now. Please try again later.")
 
-    results = therapist_places['results']
-    currently_opened = False
-    availability = 'unknown'
-    # find first open place
-    for place in results:
-        try:
-            if place['opening_hours']['open_now'] is True:
-                place_id = place['place_id']
-                name = place['name']
-                therapist_address = place['formatted_address']
-                currently_opened = True
-                availability = 'available'
-                break
-        except KeyError:
-            continue
+    # results = therapist_places['results']
+    # next_page_token = therapist_places['next_page_token']
 
-    # If no open places, find closest place
-    if not currently_opened:
-        place_id = results[0]['place_id']
-        name = results[0]['name']
-        therapist_address = results[0]['formatted_address']
-        availability = 'not available'
+
+    #availability = 'unknown'
+
+    # Get best rated and open therapist near you:
+    # place = results[0]
+    # if place['opening_hours']['open_now'] is True:
+    #     place_id = place['place_id']
+    #     name = place['name']
+    #     therapist_address = place['formatted_address']
+    #     currently_opened = True
+    #     availability = 'available'
+
+    # place_id = place['place_id']
+    #         name = place['name']
+    #         therapist_address = place['formatted_address']
+    #         currently_opened = True
+    #         availability = 'available'
+    # find
+    # for place in results:
+    #     if place['opening_hours']['open_now'] is True:
+    #         place_id = place['place_id']
+    #         name = place['name']
+    #         therapist_address = place['formatted_address']
+    #         currently_opened = True
+    #         availability = 'available'
+    #         break
+
+    # # If no open places, find closest place
+    # if not currently_opened:
+    #     place_id = results[0]['place_id']
+    #     name = results[0]['name']
+    #     therapist_address = results[0]['formatted_address']
+    #     availability = 'not available'
 
     detailed_url = "https://maps.googleapis.com/maps/api/place/details/json?placeid={}&key={}".format(place_id, api_key)
     detailed_place_request = requests.get(detailed_url)
     if detailed_place_request.status_code == 200:
         detailed_place = detailed_place_request.json()
-
+        therapist_address = detailed_place['result']['formatted_address']
         phone = detailed_place['result']['formatted_phone_number']
         hours_list = detailed_place['result']['opening_hours']['weekday_text']
         hours_message = "\n ".join(hours_list)

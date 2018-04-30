@@ -1,7 +1,14 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from pprint import pprint
+# Initialize global variables
+LIST_OF_QUESTIONS_FOUR = ['One', 'Two', 'Seven', 'Eight',  'Ten', 'Eleven', 'Fifteen']
+SUICIDE_QUESTION = 'Three'
+LIST_OF_QUESTIONS_TWO = ['Four', 'Five', ' Six', 'Nine', 'Twelve', 'Thirteen', 'Fourteen', 'Sixteen']
+LIST_OF_BONUS = ['BonusOne', 'BonusTwo', 'BonusThree', ]
+
+LIST_OF_BONUS_WAIT = ['BonusOneWait', 'BonusTwoWait', 'BonusThreeWait']
+
 
 launch_body = {
     "request": {
@@ -242,6 +249,9 @@ give_advice_body = {
         "application": {
             "applicationId": "amzn1.ask.skill"
         },
+        "attributes": {
+            "Category": "positive"
+        },
         "new": "True",
         "sessionId": "amzn1.echo-api.session",
         "user": {
@@ -408,14 +418,6 @@ general_survey_body = {
     },
     "version": "1.0"
 }
-
-LIST_OF_QUESTIONS_FOUR = ['One', 'Two', 'Seven', 'Eight',  'Ten', 'Eleven', 'Fifteen']
-SUICIDE_QUESTION = 'Three'
-LIST_OF_QUESTIONS_TWO = ['Four', 'Five', ' Six', 'Nine', 'Twelve', 'Thirteen', 'Fourteen', 'Sixteen']
-LIST_OF_BONUS = ['BonusOne', 'BonusTwo', 'BonusThree', ]
-
-LIST_OF_BONUS_WAIT = ['BonusOneWait', 'BonusTwoWait', 'BonusThreeWait']
-
 
 def generate_survey(name, dialog_completion, bonus_question, test_case):
 

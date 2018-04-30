@@ -115,9 +115,17 @@ class TestUtopiaApp(unittest.TestCase):
         self.assertEqual('AskForPermissionsConsent', data['response']['card']['type'])
         self.assertEqual('read::alexa:device:all:address', data['response']['card']['permissions'][0])
 
-    @patch('utopia.get_location')
-    def test_recommend_therapist_intent_address_mocked(self, mock_get_location):
-        mock_get_location.return_value = '3007 Sycamore Street San Jose, California 95129'
+    @patch('utopia.get_location', return_value='374 Mission Rock St, San Francisco, CA 94158')
+    def test_recommend_therapist_intent_address_mocked_open_places(self, mock_get_location):
+        response = self.app.post('/', data=json.dumps(request_json.recommend_therapist_body))
+        self.assertEqual(200, response.status_code)
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertEqual('I\'ve found a nearby therapist that you can talk to', data['response']['card']['title'])
+        self.assertTrue('I\'ve found a therapist near you.' in data['response']['outputSpeech']['text'])
+        self.assertEqual('RecommendTherapist', data['sessionAttributes']['STATE'])
+
+    @patch('utopia.get_location', return_value='1972 Hobson Ave, Greenfield, CA 93927')
+    def test_recommend_therapist_intent_address_mocked_closed_places(self, mock_get_location):
         response = self.app.post('/', data=json.dumps(request_json.recommend_therapist_body))
         self.assertEqual(200, response.status_code)
         data = json.loads(response.data.decode('utf-8'))
@@ -132,10 +140,12 @@ class TestUtopiaApp(unittest.TestCase):
         data = json.loads(response.data.decode('utf-8'))
         self.assertEqual('love', data['sessionAttributes']['Category'])
 
-    def test_give_quote_intent(self):
-        """Test QuoteIntent."""
+    def test_give_quote_intent_inspirational_quote(self):
+        """Test QuoteIntent inspirational quotes"""
         response = self.app.post('/', data=json.dumps(request_json.give_quote_body))
         self.assertEqual(200, response.status_code)
+        data = json.loads(response.data.decode('utf-8'))
+        self.assertEqual('inspirational', data['sessionAttributes']['Category'])
 
     def test_give_advice_intent(self):
         """Test QuoteIntent."""
