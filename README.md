@@ -59,9 +59,9 @@ To start using it, say a simple invocation phrase, such as the following listed 
 | Use \<invocation name>                    | Alexa, Use Utopia                    |
 
 
-To just start and see the available features, you can say the following:
+To start and hear the available features, you can say the following:
 
-**Alexa, start Utopia and help**
+    Alexa, start Utopia and help
 
 ## Testing & Code Coverage
 To run tests and check code coverage, run the following command in the root project folder:
