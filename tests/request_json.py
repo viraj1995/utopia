@@ -430,8 +430,7 @@ def generate_survey(name, dialog_completion, bonus_question, test_case):
 
     # Initialize for in progress
     elif dialog_completion == 'IN_PROGRESS':
-        pass_fail = name.split('_')[-1]
-        if not bonus_question and pass_fail == 'pass':
+        if not bonus_question and name.split('_')[-1] == 'pass':
 
             general_survey_body['session']['attributes']["COUNT"] = 2
             general_survey_body['session']['attributes']['QUESTION'] = 'Two'
@@ -440,14 +439,14 @@ def generate_survey(name, dialog_completion, bonus_question, test_case):
             general_survey_body["request"]["intent"]["slots"]["StartSurvey"]["value"] = 'yes'
             general_survey_body['request']['intent']['slots']['Two']["value"] = 1
 
-        elif not bonus_question and pass_fail == 'fail':
+        elif not bonus_question and name.split('_')[-1] == 'fail':
             general_survey_body['session']['attributes']["COUNT"] = 3
             general_survey_body['session']['attributes']['QUESTION'] = 'Three'
 
             general_survey_body["request"]["intent"]["slots"]["StartSurvey"]["value"] = 'yes'
             general_survey_body['request']['intent']['slots']['Three']["value"] = '?'
 
-        elif bonus_question:
+        elif bonus_question and name.split('_')[-1] == 'go':
             general_survey_body['session']['attributes']["COUNT"] = 16
             general_survey_body['session']['attributes']['QUESTION'] = 'BonusOne'
             general_survey_body['session']['attributes']['PREV_QUESTION'] = 'BonusOne'
@@ -457,7 +456,15 @@ def generate_survey(name, dialog_completion, bonus_question, test_case):
             general_survey_body["request"]["intent"]["slots"]["StartSurvey"]["value"] = 'yes'
             general_survey_body['request']['intent']['slots']['BonusOneWait']["value"] = 'yes'
             general_survey_body['request']['intent']['slots']['BonusOne']["value"] = 'happy great awesome'
-            pass
+        elif bonus_question and name.split('_')[-1] == 'wait':
+            general_survey_body['session']['attributes']["COUNT"] = 16
+            general_survey_body['session']['attributes']['QUESTION'] = 'BonusOne'
+            general_survey_body['session']['attributes']['PREV_QUESTION'] = 'BonusOne'
+            general_survey_body['session']['attributes']['BONUS_COUNT'] = 1
+
+            general_survey_body["request"]["intent"]["slots"]["StartSurvey"]["value"] = 'yes'
+            general_survey_body['request']['intent']['slots']['BonusOneWait']["value"] = 'no'
+
     # Initialize for completed
     elif dialog_completion == 'COMPLETED':
         if test_case.lower() == 'normal':

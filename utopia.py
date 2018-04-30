@@ -272,10 +272,6 @@ def recommend_therapist(address):
 
             place = [closed_place for closed_place in results if 'opening_hours' in closed_place]
             place = place[0]
-            # for closed_place in results:
-            #     if 'opening_hours' in closed_place:
-            #         place = closed_place
-            #place = results[0]
             place_id = place['place_id']
             name = place['name']
             availability = 'not available'
@@ -289,43 +285,6 @@ def recommend_therapist(address):
 
     else:
         return statement("Sorry, I'm having trouble doing that right now. Please try again later.")
-
-    # results = therapist_places['results']
-    # next_page_token = therapist_places['next_page_token']
-
-
-    #availability = 'unknown'
-
-    # Get best rated and open therapist near you:
-    # place = results[0]
-    # if place['opening_hours']['open_now'] is True:
-    #     place_id = place['place_id']
-    #     name = place['name']
-    #     therapist_address = place['formatted_address']
-    #     currently_opened = True
-    #     availability = 'available'
-
-    # place_id = place['place_id']
-    #         name = place['name']
-    #         therapist_address = place['formatted_address']
-    #         currently_opened = True
-    #         availability = 'available'
-    # find
-    # for place in results:
-    #     if place['opening_hours']['open_now'] is True:
-    #         place_id = place['place_id']
-    #         name = place['name']
-    #         therapist_address = place['formatted_address']
-    #         currently_opened = True
-    #         availability = 'available'
-    #         break
-
-    # # If no open places, find closest place
-    # if not currently_opened:
-    #     place_id = results[0]['place_id']
-    #     name = results[0]['name']
-    #     therapist_address = results[0]['formatted_address']
-    #     availability = 'not available'
 
     detailed_url = "https://maps.googleapis.com/maps/api/place/details/json?placeid={}&key={}".format(place_id, api_key)
     detailed_place_request = requests.get(detailed_url)

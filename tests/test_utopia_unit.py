@@ -43,9 +43,10 @@ class TestUtopiaApp(unittest.TestCase):
 
     @parameterized.expand([
         ('dialog_started', 'STARTED', None, None, None, None),
-        ('dialog_in_progress_not_bonus_question_pass', 'IN_PROGRESS', False, None, None, None),
-        ('dialog_in_progress_not_bonus_question_fail', 'IN_PROGRESS', False, None, None, None),
-        ('dialog_in_progress_bonus_question', 'IN_PROGRESS', True, None, None, None),
+        ('dialog_in_progress_regular_question_pass', 'IN_PROGRESS', False, None, None, None),
+        ('dialog_in_progress_regular_question_fail', 'IN_PROGRESS', False, None, None, None),
+        ('dialog_in_progress_bonus_question_wait', 'IN_PROGRESS', True, None, None, None),
+        ('dialog_in_progress_bonus_question_go', 'IN_PROGRESS', True, None, None, None),
         ('dialog_completed_normal_severity', 'COMPLETED', None, 'normal', 0, 7),
         ('dialog_completed_mild_severity', 'COMPLETED', None, 'mild', 8, 13),
         ('dialog_completed_moderate_severity', 'COMPLETED', None, 'moderate', 14, 18),
@@ -76,9 +77,11 @@ class TestUtopiaApp(unittest.TestCase):
                 self.assertFalse(data['response']['shouldEndSession'])
                 self.assertTrue('Please say a number in the specified range.' in
                                 data['response']['outputSpeech']['text'])
-            elif bonus_question:
+            elif bonus_question and name.split('_')[-1] == 'go':
                 self.assertEqual('happy great awesome', data['sessionAttributes']['BonusOne'])
                 self.assertEqual('BonusTwo', data['sessionAttributes']['QUESTION'])
+            elif bonus_question and name.split('_')[-1] == 'wait':
+                pass
         elif dialog_state == 'COMPLETED':
             self.assertFalse(data['response']['shouldEndSession'])
             self.assertEqual(severity, data['sessionAttributes']['Severity'])
