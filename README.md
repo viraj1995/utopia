@@ -1,3 +1,10 @@
+# CMPE 272 - Project Team-12
+## Members:
+* Kevin Chuang
+* Rohit Sharma
+* Varun Khatri
+* Viraj Upadhyay
+# Project idea:
 # Utopia: An Alexa skill that helps with depression
 [![Build Status](https://travis-ci.org/k-chuang/utopia-alexa-skill.svg?branch=master)](https://travis-ci.org/k-chuang/utopia-alexa-skill) [![codecov](https://codecov.io/gh/k-chuang/utopia-alexa-skill/branch/master/graph/badge.svg)](https://codecov.io/gh/k-chuang/utopia-alexa-skill)
 
