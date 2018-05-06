@@ -390,6 +390,19 @@
         "what can I do",
         "I need advice"
       ]
+    },
+    {
+      "name": "Meditation",
+      "slots" : [],
+      "samples" : [
+        "Meditation",
+        "Meditate",
+        "I want to meditate",
+        "Play me a meditation exercise",
+        "What type of meditation do you recommend",
+        "How to meditate",
+        "Meditation exercise"
+      ]
     }
   ]
 }
