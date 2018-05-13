@@ -89,5 +89,3 @@ The continuous integration configuration is specified in [.travis.yml](.travis.y
 #### CodeCov
 This project uses [Codecov](https://codecov.io/) to generate code coverage reports. [Codecov](https://codecov.io/) is a free, open source code coverage reporting tool that integrates seamlessly with GitHub. It calculates and measures code coverage and delivers the coverage metrics in a clear, understandable way. Similar to Travis CI, [Codecov](https://codecov.io/) also generates a clickable badge with the current code coverage metrics.
 
-## To Be Continued...
-I will add more to this as I get farther into the project.
