@@ -10,7 +10,19 @@ Date: March 8, 2018
 
 import os
 from flask import Flask, json, render_template, jsonify
-from flask_ask import Ask, request, session, question, context, statement, delegate, convert_errors, elicit_slot
+from flask_ask import (
+    Ask,
+    request,
+    session,
+    question,
+    context,
+    statement,
+    delegate,
+    convert_errors,
+    elicit_slot,
+    audio,
+    current_stream
+)
 import requests
 import json
 import logging
@@ -22,12 +34,14 @@ import yaml
 import random
 from random import randint
 from bs4 import BeautifulSoup, Tag, NavigableString
-from datetime import datetime
+from dotenv import load_dotenv
 
 ##################################
 # App & Environment Initialization
 ##################################
 
+env_path = os.path.realpath('.env')
+load_dotenv(dotenv_path=env_path)
 app = Flask(__name__)
 ask = Ask(app, "/")
 logger = logging.getLogger('flask_ask').setLevel(logging.DEBUG)
@@ -36,7 +50,6 @@ logger = logging.getLogger('flask_ask').setLevel(logging.DEBUG)
 ##############################
 # On Launch
 ##############################
-# When app is first launched, user will wind up here with this @ask.launch decorator
 @ask.launch
 def start_skill():
     session.attributes["STATE"] = 'Start'
@@ -48,17 +61,16 @@ def start_skill():
 ##########################
 # Custom Intents
 ##########################
-@ask.intent("NameIntent",
-            mapping= {'firstname': 'FirstName'})
-def get_name(firstname):
-    name_message = render_template("official_welcome", firstname=firstname)
-    name_message_reprompt = render_template("official_welcome_reprompt")
-    session.attributes["firstname"] = firstname
-    session.attributes_encoder = json.JSONEncoder
-    # DEBUG
-    # with open('session.json', 'w') as outfile:
-    #     json.dump(session.attributes, outfile, indent=4, sort_keys=True)
-    return question(name_message).reprompt(name_message_reprompt)
+# @ask.intent("NameIntent", mapping= {'firstname': 'FirstName'})
+# def get_name(firstname):
+#     name_message = render_template("official_welcome", firstname=firstname)
+#     name_message_reprompt = render_template("official_welcome_reprompt")
+#     session.attributes["firstname"] = firstname
+#     session.attributes_encoder = json.JSONEncoder
+#     # DEBUG
+#     # with open('session.json', 'w') as outfile:
+#     #     json.dump(session.attributes, outfile, indent=4, sort_keys=True)
+#     return question(name_message).reprompt(name_message_reprompt)
 
 
 @ask.intent("SurveyIntent")
@@ -177,7 +189,11 @@ def start_survey():
         score_message = render_template('very_severe', score=score)
         session.attributes['Severity'] = 'very severe'
 
-    return question(score_message)
+
+    return question(score_message).simple_card(title='Your Hamilton Depression Rating Survey Score',
+                                               content=render_template('HAMD_display_card',
+                                                                       score=score,
+                                                                       level=session.attributes['Severity']))
 
 
 @ask.intent("GetQuoteTypeIntent")
@@ -221,6 +237,21 @@ def give_quote(category):
                                              large_image_url=rand_quote_picture)
 
 
+@ask.intent('PoemIntent')
+def give_poem():
+    session.attributes['STATE'] = 'Poem'
+    # all_poems = os.environ["POEMS"]
+    all_poems = os.getenv('POEMS')
+    poems_json = json.loads(all_poems)
+    the_poem_name = random.choice(list(poems_json['Poems'].keys()))
+    the_poem = poems_json['Poems'][the_poem_name]
+    poem_author = the_poem['author']
+    speech = render_template('poem', the_poem_name=the_poem_name, poem_author=poem_author)
+    stream_url = the_poem['audio_link']
+    return audio(speech).play(stream_url).simple_card(title=the_poem_name + ' by ' + poem_author,
+                                                      content='Poetry Link: ' + the_poem['text_link'])
+
+
 @ask.intent('SuicideHotLine')
 def provide_hot_line():
     session.attributes["STATE"] = 'SuicideHotLine'
@@ -239,15 +270,16 @@ def recommend_therapist(address):
     :return:
     '''
     session.attributes["STATE"] = 'RecommendTherapist'
-    # query = "therapist psychiatrist psychologist"
-    query = "therapist"
+    query = "therapist psychiatrist psychologist"
+
     try:
         address = get_location()
     # address is not successfully found, raise ValueError and catch it here
     except ValueError as er:
         return statement(str(er)).consent_card("read::alexa:device:all:address")
 
-    api_key = os.environ['GOOGLE_API_KEY']
+    # api_key = os.environ['GOOGLE_API_KEY']
+    api_key = os.getenv('GOOGLE_API_KEY')
     kwargs_geocode = {'key': api_key}
     g = geocoder.google(address, **kwargs_geocode)
     coordinates = g.latlng
@@ -329,33 +361,57 @@ def give_advice():
     with open("templates.yaml", 'r') as stream:
         out = yaml.load(stream)
         all_advice = out['advice_list']
-    advice = random.choice(all_advice) + '<break time="1s"/> '
-    advice_message = render_template('advice_message') + advice + 'I hope that was able to help you. If you wish to ' \
-                                                                  'hear more ideas about what you can do to improve ' \
-                                                                  'your mood, say more ideas. For other features, ' \
+    advice = random.choice(all_advice)
+    advice_message = render_template('advice_message') + advice + ' <break time="1s"/> I hope that was able to help you. ' \
+                                                                  'If you wish to hear more ideas about what you can do ' \
+                                                                  'to improve your mood, say more ideas. For other features, ' \
                                                                   'say help. Otherwise, say stop to stop. '
     advice_message_ssml = '<speak> ' + advice_message + ' </speak>'
-    return question(advice_message_ssml)
+    return question(advice_message_ssml).simple_card(title='Ideas to improve your mood!',
+                                                     content=advice)
+
 
 ##############################
 # Overriding Required Intents
 ##############################
+@ask.intent('AMAZON.CancelIntent')
+@ask.intent('AMAZON.StopIntent')
+def stop():
+    # try:
+    #     firstname = session.attributes['firstname']
+    # except KeyError:
+    #     firstname = 'my friend'
+    # bye_message = render_template("bye", firstname=firstname)
+    bye_message = render_template("bye")
+    return audio(bye_message).clear_queue(stop=True)
+
+
+@ask.intent('AMAZON.PauseIntent')
+def pause():
+    return audio('Pausing..').stop()
+
+
+@ask.intent('AMAZON.ResumeIntent')
+def resume():
+    return audio('Resuming..').resume()
+
+
+@ask.intent('AMAZON.NextIntent')
+@ask.intent('AMAZON.PreviousIntent')
+@ask.intent('AMAZON.ShuffleOffIntent')
+@ask.intent('AMAZON.ShuffleOnIntent')
+@ask.intent('AMAZON.RepeatIntent')
+@ask.intent('AMAZON.LoopOffIntent')
+@ask.intent('AMAZON.LoopOnIntent')
+@ask.intent('AMAZON.StartOverIntent')
+def not_supported():
+    return audio('Sorry, that feature is not yet implemented... Resuming...').resume()
 
 
 @ask.intent('AMAZON.HelpIntent')
 def help():
     help_text = render_template('help')
     return question(help_text)
-
-
-@ask.intent('AMAZON.StopIntent')
-def stop():
-    try:
-        firstname = session.attributes['firstname']
-    except KeyError:
-        firstname = 'my friend'
-    bye_message = render_template("bye", firstname=firstname)
-    return statement(bye_message)
 
 
 @ask.session_ended
@@ -397,7 +453,13 @@ def get_location():
     '''
     URL = "https://api.amazonalexa.com/v1/devices/{}/settings" \
           "/address".format(context.System.device.deviceId)
-    TOKEN = context.System.user.permissions.consentToken
+
+    try:
+        TOKEN = context.System.user.permissions.consentToken
+    except AttributeError:
+        raise ValueError('Sorry, but your location could not be found. Please enable it by allowing access to '
+                         'your location via the Alexa app, and try again to fully utilize this feature. Thank you.')
+
     HEADER = {'Accept': 'application/json',
               'Authorization': 'Bearer {}'.format(TOKEN)}
     r = requests.get(URL, headers=HEADER)
